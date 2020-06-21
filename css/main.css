@@ -1,0 +1,35 @@
+* {
+	margin: 0;
+	padding: 0;
+}
+
+body {
+	overflow-x: hidden;
+	overflow-y: hidden;
+}
+
+#information {
+	position: fixed;
+	top: 5px;
+	left: 5px;
+}
+
+#debug {
+	margin: 10px;
+	padding: 10px;
+	background-color: rgba(255,255,255,0.9);
+	font-size: 12px;
+	box-shadow: 0 0 2px rgba(0,0,0,0.3);
+}
+
+#copyright {
+	position: fixed;
+	bottom: 10px;
+	left: 16px;
+}
+
+@media screen and ( max-width: 798px ){
+	#information img {
+		width: 70%;
+	}
+}
