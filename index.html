@@ -5,24 +5,61 @@
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width,user-scalable=no,maximum-scale=1">
 		<meta name="robots" content="noindex, nofollow">
-		<script src="js/jquery.js"></script>
-		<script src="js/three.min.js"></script>
-		<script src="js/GLTFLoader.js"></script>
-		<script src="js/OrbitControls.js"></script>
-		<script src="js/main.js"></script>
 		<link rel="stylesheet" href="css/main.css">
 	</head>
 	<body>
-		<div id="information">
-			<img src="img/logo.png"><br>
-			<div id="debug">
+		<div class="wrapper">
+			<div class="header">
+				<img src="img/logo.png">
+			</div>
+			<div class="start">
+				<video controls src="movie/movie.mp4"></video>
+				<a href="vhc.html"><img src="img/start.png"></a><br>
+				<p>
+					ソフトウェアやプラグインのダウンロード、インストールは必要ありません。<br>
+					推奨動作環境：Google Chrome、Mozilla Firefox
+				</p>
+			</div>
+			<div class="contents">
+				<!-- このサイトについて -->
+				<h1>このサイトについて</h1>
+				<p>　この度はお越しいただきありがとうございます。「静岡大学 バーチャル情報学部」は、静岡大学情報学部／総合科学技術研究科・情報学専攻のキャンパスや学習・研究内容を、インターネットを通して疑似体験できるコンテンツです。<br>
+				　新型コロナウイルスの感染拡大によって不要不急の外出や都道府県をまたぐ移動が制限される中、受験生や保護者の皆様に静岡大学情報学部の魅力を少しでも知っていただくため、情報学部広報委員会と<a href="#">xR同好会はまりあ</a>が主体となって制作しました。</p>
+				<!-- 更新情報 -->
+				<h1>更新情報</h1>
+				<div class="update">
+					<table>
+						<tr><th>2020/06/26</th><td>試作品 Rev.5 をリリースしました。</td></tr>
+						<tr><th>2020/06/21</th><td>GitHub Privateリポジトリを公開しました。</td></tr>
+						<tr><th>2020/06/19</th><td>試作品 Rev.4 をリリースしました。</td></tr>
+						<tr><th>2020/06/14</th><td>試作品 Rev.3 をリリースしました。</td></tr>
+						<tr><th>2020/06/11</th><td>試作品 Rev.2 をリリースしました。</td></tr>
+						<tr><th>2020/06/10</th><td>試作品 Rev.1 をリリースしました。</td></tr>
+					</table>
+				</div>
+				<!-- 他大学・他団体の皆様へ -->
+				<h1>他大学・他団体の皆様へ</h1>
+				<p>　「静岡大学 バーチャル情報学部」はオープンソースソフトウェアとして無償提供しており、他大学・他団体によるバーチャルオープンキャンパスの開発基盤としても活用できます。<br>
+				　ライセンスは「MITライセンス」となっております。これは著作権表記を条件に、改変・再配布・商用利用・有料販売などの幅広い行為を認めるものです。詳細は<a href="https://wisdommingle.com/mit-license/" target="blank">こちら（外部サイト）</a>をご覧下さい。<br>
+				　ソースコードのダウンロードは<a href="https://github.com/xr-hamaria/virtual-inf" target="blank">こちら（GitHub）</a></p>
+				<!-- 関連リンク -->
+				<h1>関連リンク</h1>
+				<p>
+					<a href="https://www.shizuoka.ac.jp/" target="blank">国立大学法人 静岡大学</a><br>
+					<a href="https://www.inf.shizuoka.ac.jp/" target="blank">静岡大学 情報学部／総合科学技術研究科・情報学専攻</a><br>
+					<a href="https://github.com/xr-hamaria/" target="blank">xR同好会はまりあ GitHub</a><br>
+				</p>
 			</div>
 		</div>
-		<div id="main_canvas">
-			<canvas id="canvas" width="100%" height="100%"></canvas>
-		</div>
-		<div id="copyright">
-			<img src="img/copyright.png">
+		<div class="footer">
+			<p>
+				Faculty of Informatics, Shizuoka University (Virtual Edition)<br>
+				Beta Version / Rev.5 (2020-06-26)<br>
+				Licensed under the MIT License
+			<p>
+				(c)2020 Shizuoka University all rights reserved.<br>
+				Developed by Shizuoka University xR Association "Hamaria"
+			</p>
 		</div>
 	</body>
 </html>

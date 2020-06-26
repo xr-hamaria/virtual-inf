@@ -1,8 +1,8 @@
 /*
 静岡大学 バーチャル情報学部 試作品
-Rev. 4 (2020-06-19)
+Rev.5 (2020-06-24)
 
-(c) 2020 Shizuoka University all rights reserved.
+(c)2020 Shizuoka University all rights reserved.
 Developed by Shizuoka University xR Association "Hamaria"
 */
 
@@ -11,6 +11,8 @@ var html = "";
 var mouse = { x: 0, y: 0 };
 var targetList = [];
 var renderer, scene, camera;
+var chip = 0;
+var chip_tx = "";
 window.addEventListener('DOMContentLoaded', init);
 
 function init() {
@@ -88,11 +90,20 @@ function init() {
 		renderer.render(scene, camera);
 		requestAnimationFrame(tick);
 		html = "[Camera Parameter for Debug]<br>X Position："+camera.position.x+"<br>Y Position："+camera.position.y+"<br>Z Position："+camera.position.z+"<br>X Rotation："+camera.rotation.x+"<br>Y Rotation："+camera.rotation.y+"<br>Z Rotation："+camera.rotation.z+"<br>X Scale："+camera.scale.x+"<br>Y Scale："+camera.scale.y+"<br>Z Scale："+camera.scale.z
-		$("#debug").html(html);
+		$("#debug_camera").html(html);
+		
+		// ツールチップ処理
+		if (chip == 0) {
+			$("#chip").hide();
+		}
+		if (chip == 1) {
+			$("#chip").show();
+		}
+		$("#chip").text(chip_tx);
 	}
 }
 
-window.onmouseup = function (ev){
+window.onmousemove = function (ev){
 	var a = 0;
 	
 	// 画面上のマウスクリック位置
@@ -114,8 +125,13 @@ window.onmouseup = function (ev){
 		if (intersects[i].object.name == "Info_2_0" || intersects[i].object.name == "Info_2_1") {
 			if (a == 0){
 				a = 1;
-				alert("情報学部2号館がクリックされました");
+				chip = 1;
+				chip_tx = "情報学部2号館";
 			}
+			$("#chip").css("left", x);
+			$("#chip").css("top", y);
+		} else {
+			chip = 0;
 		}
 		//alert(intersects[i].object.name);
 	}
