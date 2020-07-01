@@ -91,3 +91,15 @@ a:hover {
 .footer p {
 	padding: 10px 0;
 }
+
+@media screen and ( max-width: 820px ){
+	.wrapper, .footer {
+		width: 100%;
+	}
+	
+	.start, .contents, .footer {
+		padding-left: 10px;
+		padding-right: 10px;
+		box-sizing: border-box;
+	}
+}

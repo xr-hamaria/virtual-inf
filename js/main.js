@@ -1,6 +1,6 @@
 /*
 静岡大学 バーチャル情報学部 試作品
-Rev.5 (2020-06-24)
+Rev.6 (2020-06-24)
 
 (c)2020 Shizuoka University all rights reserved.
 Developed by Shizuoka University xR Association "Hamaria"
@@ -10,9 +10,10 @@ var controls;
 var html = "";
 var mouse = { x: 0, y: 0 };
 var targetList = [];
-var renderer, scene, camera;
+var renderer, scene, camera, material, mesh;
 var chip = 0;
 var chip_tx = "";
+var chip_id = "";
 window.addEventListener('DOMContentLoaded', init);
 
 function init() {
@@ -23,7 +24,7 @@ function init() {
 	});
 	width = window.innerWidth;
 	height = window.innerHeight;
-	renderer.setClearColor(0x5C65BB);
+	renderer.setClearColor(0x345CAA);
 	renderer.setPixelRatio(1);
 	renderer.setSize(width, height);
 
@@ -36,22 +37,50 @@ function init() {
 	const controls = new THREE.OrbitControls(camera);
 
 	const loader = new THREE.GLTFLoader();
+
 	
 	// 全体モデル
-	let model = null;
+	var model = null;
 	loader.load(
-		'model/Except_Inf2.glb',
+		//'model/campus_a_06281507_nt.glb',
+		'model/campus_a_062801507.glb',
 		function (gltf) {
 			model = gltf.scene;
 			model.scale.set(100,100,100);
 			model.position.set(0, -400, 0);
 			scene.add(gltf.scene);
+			for(let child of gltf.scene.children) {
+				if(child.material && child.name == "floor_asphalt") {
+					child.material.polygonOffset = true;
+					child.material.polygonOffsetFactor = 1;
+					child.material.polygonOffsetUnits = 10;
+				}
+				if(child.material && child.name == "floor_brick") {
+					child.material.polygonOffset = true;
+					child.material.polygonOffsetFactor = 1;
+					child.material.polygonOffsetUnits = -1;
+				}
+			}
 		},
 		function (error) {
 			console.log(error);
 		}
 	);
 	
+	/*
+	material = new THREE.MeshStandardMaterial({
+		color: 0xff0000,
+		polygonOffset: true,
+		polygonOffsetFactor: -1.0,
+		polygonOffsetUnits: -4.0
+	});
+	// メッシュを作成
+	mesh = new THREE.Mesh(model, material);
+	// 3D空間にメッシュを追加
+	scene.add(mesh);
+	*/
+	
+	/*
 	// 情報学部2号館
 	let inf2 = null;
 	loader.load(
@@ -67,6 +96,7 @@ function init() {
 			console.log(error);
 		}
 	);
+	*/
 	
 	renderer.gammaOutput = true;
 	renderer.gammaFactor = 2.2;
@@ -89,7 +119,7 @@ function init() {
 		controls.update();
 		renderer.render(scene, camera);
 		requestAnimationFrame(tick);
-		html = "[Camera Parameter for Debug]<br>X Position："+camera.position.x+"<br>Y Position："+camera.position.y+"<br>Z Position："+camera.position.z+"<br>X Rotation："+camera.rotation.x+"<br>Y Rotation："+camera.rotation.y+"<br>Z Rotation："+camera.rotation.z+"<br>X Scale："+camera.scale.x+"<br>Y Scale："+camera.scale.y+"<br>Z Scale："+camera.scale.z
+		html = "[Camera Parameter for Debug]<br>X Position："+camera.position.x+"<br>Y Position："+camera.position.y+"<br>Z Position："+camera.position.z+"<br>X Rotation："+camera.rotation.x+"<br>Y Rotation："+camera.rotation.y+"<br>Z Rotation："+camera.rotation.z+"<br>X Scale："+camera.scale.x+"<br>Y Scale："+camera.scale.y+"<br>Z Scale："+camera.scale.z;
 		$("#debug_camera").html(html);
 		
 		// ツールチップ処理
@@ -104,7 +134,7 @@ function init() {
 }
 
 window.onmousemove = function (ev){
-	var a = 0;
+	var hit = 0;
 	
 	// 画面上のマウスクリック位置
 	var x = event.clientX;
@@ -122,17 +152,23 @@ window.onmousemove = function (ev){
 	// オブジェクトの取得
 	var intersects = raycaster.intersectObjects(scene.children, true);
 	for (var i = 0; i < intersects.length; i++) {
-		if (intersects[i].object.name == "Info_2_0" || intersects[i].object.name == "Info_2_1") {
-			if (a == 0){
-				a = 1;
-				chip = 1;
-				chip_tx = "情報学部2号館";
-			}
+		if (intersects[i].object.name.indexOf("map_5.osm_buildings.002") != -1) {
+			chip = 1;
+			chip_tx = "情報学部2号館";
+			chip_id = "map_5.osm_buildings.002";
+		}
+		if (intersects[i].object.name.indexOf("map_5.osm_buildings.005") != -1) {
+			chip = 1;
+			chip_tx = "共通講義棟";
+			chip_id = "map_5.osm_buildings.005";
+		}
+		if (chip == 1) {
 			$("#chip").css("left", x);
 			$("#chip").css("top", y);
-		} else {
-			chip = 0;
 		}
-		//alert(intersects[i].object.name);
+		if (intersects[i].object.name.indexOf(chip_id) != -1) {
+			hit++;
+		}
 	}
+	if (hit == 0){ chip = 0; }
 }

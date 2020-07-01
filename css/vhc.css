@@ -34,16 +34,17 @@ body {
 	top: 0;
 	left: 0;
 	padding: 10px;
-	background-color: #5C65BB;
+	background-color: #345CAA;
 	border: solid 1px #FFFFFF;
 	z-index: 100;
 	color: #FFFFFF;
 	text-shadow: 1px 1px 1px rgba(0,0,0,0.3);
 	box-shadow: 2px 2px 2px rgba(0,0,0,0.7);
+	display: none;
 }
 
 @media screen and ( max-width: 798px ){
-	#information img {
+	#information img, #copyright img {
 		width: 70%;
 	}
 }
