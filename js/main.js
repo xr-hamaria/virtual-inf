@@ -6,8 +6,6 @@ Prototype / Rev.7
 Developed by Shizuoka University xR Association "Hamaria"
 */
 
-import { VRButton } from './VRButton.js';
-
 var controls;
 var html = "";
 var mouse = { x: 0, y: 0 };
@@ -29,7 +27,7 @@ function init() {
 	renderer.setClearColor(0x345CAA);
 	renderer.setPixelRatio(1);
 	renderer.setSize(width, height);
-	renderer.xr.enabled = true; // レンダラーのWebXR設定を有効化
+	renderer.vr.enabled = true; // レンダラーのWebVR設定を有効化
 
 	// シーンを作成
 	scene = new THREE.Scene();
@@ -42,8 +40,8 @@ function init() {
 	const loader = new THREE.GLTFLoader();
 
 
-	// VRButtonを設置
-	document.body.appendChild( VRButton.createButton( renderer ) );
+	// ENTER VRを設置
+	document.body.appendChild(WEBVR.createButton(renderer));
 	
 	// 全体モデル
 	var model = null;
