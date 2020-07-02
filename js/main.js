@@ -6,6 +6,8 @@ Prototype / Rev.7
 Developed by Shizuoka University xR Association "Hamaria"
 */
 
+import { VRButton } from './VRButton.js';
+
 var controls;
 var html = "";
 var mouse = { x: 0, y: 0 };
@@ -22,11 +24,12 @@ function init() {
 		canvas: document.querySelector('#canvas'),
 		antialias: true
 	});
-	width = window.innerWidth;
-	height = window.innerHeight;
+	var width = window.innerWidth;
+	var height = window.innerHeight;
 	renderer.setClearColor(0x345CAA);
 	renderer.setPixelRatio(1);
 	renderer.setSize(width, height);
+	renderer.xr.enabled = true; // レンダラーのWebXR設定を有効化
 
 	// シーンを作成
 	scene = new THREE.Scene();
@@ -38,6 +41,9 @@ function init() {
 
 	const loader = new THREE.GLTFLoader();
 
+
+	// VRButtonを設置
+	document.body.appendChild( VRButton.createButton( renderer ) );
 	
 	// 全体モデル
 	var model = null;
@@ -86,7 +92,9 @@ function init() {
 		*/
 		controls.update();
 		renderer.render(scene, camera);
-		requestAnimationFrame(tick);
+		renderer.setAnimationLoop(tick);
+		
+		// requestAnimationFrame(tick);
 		html = "[Camera Parameter]<br>X Position："+camera.position.x+"<br>Y Position："+camera.position.y+"<br>Z Position："+camera.position.z+"<br>X Rotation："+camera.rotation.x+"<br>Y Rotation："+camera.rotation.y+"<br>Z Rotation："+camera.rotation.z+"<br>X Scale："+camera.scale.x+"<br>Y Scale："+camera.scale.y+"<br>Z Scale："+camera.scale.z;
 		$("#debug_camera").html(html);
 		
