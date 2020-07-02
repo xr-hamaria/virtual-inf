@@ -14,6 +14,10 @@ body {
 	left: 5px;
 }
 
+#toolbar {
+	margin: 3px;
+}
+
 #debug {
 	margin: 9px;
 	padding: 9px;
@@ -21,6 +25,7 @@ body {
 	background-color: rgba(255,255,255,0.9);
 	font-size: 12px;
 	box-shadow: 0 0 3px rgba(0,0,0,0.7);
+	display: none;
 }
 
 #copyright {
@@ -40,6 +45,13 @@ body {
 	color: #FFFFFF;
 	text-shadow: 1px 1px 1px rgba(0,0,0,0.3);
 	box-shadow: 2px 2px 2px rgba(0,0,0,0.7);
+	display: none;
+}
+
+#vr_mode {
+	position:fixed;
+	top: 3px;
+	left: 3px;
 	display: none;
 }
 

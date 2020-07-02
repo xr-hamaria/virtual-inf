@@ -10,16 +10,23 @@
 		<script src="js/GLTFLoader.js"></script>
 		<script src="js/OrbitControls.js"></script>
 		<script src="js/main.js"></script>
+		<script src="js/vrmode.js"></script>
 		<link rel="stylesheet" href="css/vhc.css">
 	</head>
 	<body>
 		<div id="chip">情報学部2号館</div>
+		<div id="vr_mode">
+			<a href="javascript:closeVRMode()"><img src="img/vrend.png"></a>
+		</div>
 		<div id="information">
 			<img src="img/logo_white.png"><br>
+			<div id="toolbar">
+				<a href="javascript:changeVRMode()"><img src="img/vrmode.png"></a><br>
+				<a href="#"><img src="img/help.png"></a><br>
+				<a href="javascript:toggleDebugWindow()"><img src="img/debug.png"></a>
+			</div>
 			<div id="debug">
-				<div id="debug_camera"></div><br>
-				[Version Info.]<br>
-				Prototype / Rev.6 (2020-07-01)
+				<div id="debug_camera"></div>
 			</div>
 		</div>
 		<div id="main_canvas">

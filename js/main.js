@@ -1,6 +1,6 @@
 /*
-静岡大学 バーチャル情報学部 試作品
-Rev.6 (2020-06-24)
+静岡大学 バーチャル情報学部
+Prototype / Rev.7
 
 (c)2020 Shizuoka University all rights reserved.
 Developed by Shizuoka University xR Association "Hamaria"
@@ -42,7 +42,6 @@ function init() {
 	// 全体モデル
 	var model = null;
 	loader.load(
-		//'model/campus_a_06281507_nt.glb',
 		'model/campus_a_062801507.glb',
 		function (gltf) {
 			model = gltf.scene;
@@ -67,37 +66,6 @@ function init() {
 		}
 	);
 	
-	/*
-	material = new THREE.MeshStandardMaterial({
-		color: 0xff0000,
-		polygonOffset: true,
-		polygonOffsetFactor: -1.0,
-		polygonOffsetUnits: -4.0
-	});
-	// メッシュを作成
-	mesh = new THREE.Mesh(model, material);
-	// 3D空間にメッシュを追加
-	scene.add(mesh);
-	*/
-	
-	/*
-	// 情報学部2号館
-	let inf2 = null;
-	loader.load(
-		'model/inf2_v2.glb',
-		function (gltf) {
-			inf2 = gltf.scene;
-			inf2.scale.set(100,100,100);
-			inf2.position.set(0, -400, 0);
-			scene.add(gltf.scene);
-			targetList.push(inf2);
-		},
-		function (error) {
-			console.log(error);
-		}
-	);
-	*/
-	
 	renderer.gammaOutput = true;
 	renderer.gammaFactor = 2.2;
 
@@ -119,7 +87,7 @@ function init() {
 		controls.update();
 		renderer.render(scene, camera);
 		requestAnimationFrame(tick);
-		html = "[Camera Parameter for Debug]<br>X Position："+camera.position.x+"<br>Y Position："+camera.position.y+"<br>Z Position："+camera.position.z+"<br>X Rotation："+camera.rotation.x+"<br>Y Rotation："+camera.rotation.y+"<br>Z Rotation："+camera.rotation.z+"<br>X Scale："+camera.scale.x+"<br>Y Scale："+camera.scale.y+"<br>Z Scale："+camera.scale.z;
+		html = "[Camera Parameter]<br>X Position："+camera.position.x+"<br>Y Position："+camera.position.y+"<br>Z Position："+camera.position.z+"<br>X Rotation："+camera.rotation.x+"<br>Y Rotation："+camera.rotation.y+"<br>Z Rotation："+camera.rotation.z+"<br>X Scale："+camera.scale.x+"<br>Y Scale："+camera.scale.y+"<br>Z Scale："+camera.scale.z;
 		$("#debug_camera").html(html);
 		
 		// ツールチップ処理
@@ -171,4 +139,23 @@ window.onmousemove = function (ev){
 		}
 	}
 	if (hit == 0){ chip = 0; }
+}
+
+// VRモードへ切り替え
+function changeVRMode(){
+	$("#information").hide(500);
+	$("#copyright").hide(500);
+	$("#vr_mode").show(500);
+}
+
+// VRモードの終了
+function closeVRMode(){
+	$("#information").show(500);
+	$("#copyright").show(500);
+	$("#vr_mode").hide(500);
+}
+
+// デバッグウインドウ
+function toggleDebugWindow(){
+	$("#debug").slideToggle(500);
 }
