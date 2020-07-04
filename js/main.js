@@ -6,6 +6,8 @@ Prototype / Rev.7
 Developed by Shizuoka University xR Association "Hamaria"
 */
 
+import { VRButton } from './WebVR.js';
+
 var controls;
 var html = "";
 var mouse = { x: 0, y: 0 };
@@ -27,7 +29,11 @@ function init() {
 	renderer.setClearColor(0x345CAA);
 	renderer.setPixelRatio(1);
 	renderer.setSize(width, height);
-	renderer.vr.enabled = true; // レンダラーのWebVR設定を有効化
+	
+	if(VRButton.enableVR()) {
+		renderer.vr.enabled = true;
+		document.body.appendChild(VRButton.createButton(renderer));
+	}
 
 	// シーンを作成
 	scene = new THREE.Scene();
@@ -39,9 +45,6 @@ function init() {
 
 	const loader = new THREE.GLTFLoader();
 
-
-	// ENTER VRを設置
-	document.body.appendChild(WEBVR.createButton(renderer));
 	
 	// 全体モデル
 	var model = null;
@@ -80,8 +83,9 @@ function init() {
 	scene.add(light);
 	camera.position.set(32998.86609379634,23683.169594230232,-3589.9973772662483);
 	camera.rotation.set(-1.8099243120012465,0.7840724844004205,1.9031279561056308)
-	tick();
-	
+	//tick();
+	renderer.setAnimationLoop(tick);
+
 	function tick() {
 		/*
 		if (model != null) {
@@ -90,7 +94,7 @@ function init() {
 		*/
 		controls.update();
 		renderer.render(scene, camera);
-		renderer.setAnimationLoop(tick);
+		//renderer.setAnimationLoop(tick);
 		
 		// requestAnimationFrame(tick);
 		html = "[Camera Parameter]<br>X Position："+camera.position.x+"<br>Y Position："+camera.position.y+"<br>Z Position："+camera.position.z+"<br>X Rotation："+camera.rotation.x+"<br>Y Rotation："+camera.rotation.y+"<br>Z Rotation："+camera.rotation.z+"<br>X Scale："+camera.scale.x+"<br>Y Scale："+camera.scale.y+"<br>Z Scale："+camera.scale.z;
