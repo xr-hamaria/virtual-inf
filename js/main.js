@@ -31,7 +31,7 @@ function init() {
 	renderer.setSize(width, height);
 	
 	if(VRButton.enableVR()) {
-		renderer.vr.enabled = true;
+		renderer.xr.enabled = true;
 		document.body.appendChild(VRButton.createButton(renderer));
 	}
 
@@ -76,11 +76,11 @@ function init() {
 	renderer.gammaOutput = true;
 	renderer.gammaFactor = 2.2;
 
+	scene.add(new THREE.AmbientLight(0xFFFFFF, 1));
     // 平行光源
-	const light = new THREE.DirectionalLight(0xFFFFFF);
-	light.intensity = 2; // 光の強さを倍に
-	light.position.set(1, 1, 1);
-	scene.add(light);
+	const sun = new THREE.DirectionalLight(0xFFFFFF, 1);
+	sun.position.set(1, 1, 1);
+	scene.add(sun);
 	camera.position.set(32998.86609379634,23683.169594230232,-3589.9973772662483);
 	camera.rotation.set(-1.8099243120012465,0.7840724844004205,1.9031279561056308)
 	//tick();
@@ -152,20 +152,20 @@ window.onmousemove = function (ev){
 }
 
 // VRモードへ切り替え
-function changeVRMode(){
+window.changeVRMode = () => {
 	$("#information").hide(500);
 	$("#copyright").hide(500);
 	$("#vr_mode").show(500);
-}
+};
 
 // VRモードの終了
-function closeVRMode(){
+window.closeVRMode = () => {
 	$("#information").show(500);
 	$("#copyright").show(500);
 	$("#vr_mode").hide(500);
-}
+};
 
 // デバッグウインドウ
-function toggleDebugWindow(){
+window.toggleDebugWindow = () => {
 	$("#debug").slideToggle(500);
-}
+};

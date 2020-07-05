@@ -11,23 +11,21 @@ var WEBVR = {
 
 	createButton: function ( renderer ) {
 
+		var eventEnterVR = new CustomEvent('enter_vr', {  });
+		var eventExitVR = new CustomEvent('exit_vr', {  });
+
 		function showEnterVR( device ) {
-
 			button.style.display = '';
-
 			button.style.cursor = 'pointer';
 			button.style.left = 'calc(50% - 50px)';
 			button.style.width = '100px';
 
 			button.textContent = 'ENTER VR';
-
 			button.onmouseenter = function () { button.style.opacity = '1.0'; };
 			button.onmouseleave = function () { button.style.opacity = '0.5'; };
 
 			button.onclick = function () {
-
 				device.isPresenting ? device.exitPresent() : device.requestPresent( [ { source: renderer.domElement } ] );
-
 			};
 
 			//renderer.xr.setDevice( device );
@@ -35,9 +33,7 @@ var WEBVR = {
 		}
 
 		function showEnterXR( device ) {
-
 			var currentSession = null;
-
 			function onSessionStarted( session ) {
 
 				session.addEventListener( 'end', onSessionEnded );
@@ -46,6 +42,7 @@ var WEBVR = {
 				button.textContent = 'EXIT XR';
 
 				currentSession = session;
+				window.dispatchEvent(eventEnterVR);
 
 			}
 
@@ -57,6 +54,7 @@ var WEBVR = {
 				button.textContent = 'ENTER XR';
 
 				currentSession = null;
+				window.dispatchEvent(eventExitVR);
 
 			}
 
@@ -247,6 +245,9 @@ var WEBXR = {
 		if ( options ) {
 			console.error( 'THREE.VRButton: The "options" parameter has been removed. Please set the reference space type via renderer.xr.setReferenceSpaceType() instead.' );
 		}
+		
+		var eventEnterVR = new CustomEvent('enter_vr', {  });
+		var eventExitVR = new CustomEvent('exit_vr', {  });
 
 		function showEnterVR( /*device*/ ) {
 			var currentSession = null;
@@ -255,12 +256,14 @@ var WEBXR = {
 				renderer.xr.setSession( session );
 				button.textContent = 'EXIT VR';
 				currentSession = session;
+				window.dispatchEvent(eventEnterVR);
 			}
 
 			function onSessionEnded( /*event*/ ) {
 				currentSession.removeEventListener( 'end', onSessionEnded );
 				button.textContent = 'ENTER VR';
 				currentSession = null;
+				window.dispatchEvent(eventExitVR);
 			}
 
 			button.style.display = '';
@@ -286,8 +289,10 @@ var WEBXR = {
 					// requestReferenceSpace call will fail if it turns out to be unavailable.
 					// ('local' is always available for immersive sessions and doesn't need to
 					// be requested separately.)
+
 					var sessionInit = { optionalFeatures: [ 'local-floor', 'bounded-floor' ] };
 					navigator.xr.requestSession( 'immersive-vr', sessionInit ).then( onSessionStarted );
+
 				} else {
 					currentSession.end();
 				}
@@ -354,11 +359,14 @@ var WEBXR = {
 
 
 var VRButton = {
+	
 	createButton : function(renderer, options) {
+
 		console.log('getVRDisplays' in navigator);
 		if ( supportOldAPI && 'getVRDisplays' in navigator ) {
 			return WEBVR.createButton(renderer);
 		}
+
 		return WEBXR.createButton(renderer);
 
 	},
@@ -367,5 +375,6 @@ var VRButton = {
 		return 'xr' in navigator || (supportOldAPI && 'getVRDisplays' in navigator);
 	}
 };
+
 
 export { VRButton };
