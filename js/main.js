@@ -1,6 +1,6 @@
 /*
 静岡大学 バーチャル情報学部
-Prototype / Rev.7
+Prototype / Rev.9
 
 (c)2020 Shizuoka University all rights reserved.
 Developed by Shizuoka University xR Association "Hamaria"
@@ -17,6 +17,10 @@ var chip = 0;
 var chip_tx = "";
 var chip_id = "";
 window.addEventListener('DOMContentLoaded', init);
+
+$(window).on('touchmove.noScroll', function(e) {
+	e.preventDefault();
+});
 
 function init() {
 	// レンダラーを作成

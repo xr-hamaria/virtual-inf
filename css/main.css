@@ -30,8 +30,8 @@ a:hover {
 	background-image: url("../img/top_bg.png");
 }
 
-.header img {
-	width: 70%;
+.header-logo {
+	width: 75%;
 }
 
 .start {
@@ -46,7 +46,7 @@ a:hover {
 }
 
 .start video {
-	width: 70%;
+	width: 75%;
 	padding-top: 5px;
 	padding-bottom: 15px;
 }
@@ -96,10 +96,12 @@ a:hover {
 	.wrapper, .footer {
 		width: 100%;
 	}
-	
 	.start, .contents, .footer {
 		padding-left: 10px;
 		padding-right: 10px;
 		box-sizing: border-box;
+	}
+	.start img {
+		width: 75%;
 	}
 }
