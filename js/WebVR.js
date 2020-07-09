@@ -362,7 +362,7 @@ var VRButton = {
 	
 	createButton : function(renderer, options) {
 
-		console.log('getVRDisplays' in navigator);
+		//console.log('getVRDisplays' in navigator);
 		if ( supportOldAPI && 'getVRDisplays' in navigator ) {
 			return WEBVR.createButton(renderer);
 		}
