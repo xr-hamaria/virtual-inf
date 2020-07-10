@@ -1,6 +1,6 @@
 /*
 静岡大学 バーチャル情報学部
-Prototype / Rev.9
+Prototype / Rev.10
 
 (c)2020 Shizuoka University all rights reserved.
 Developed by Shizuoka University xR Association "Hamaria"
@@ -16,6 +16,7 @@ var renderer, scene, camera, material, mesh;
 var chip = 0;
 var chip_tx = "";
 var chip_id = "";
+var fade = 0;
 window.addEventListener('DOMContentLoaded', init);
 
 $(window).on('touchmove.noScroll', function(e) {
@@ -71,6 +72,7 @@ function init() {
 					child.material.polygonOffsetUnits = -1;
 				}
 			}
+			$("#cover").css("opacity",0);
 		},
 		function (error) {
 			console.log(error);
@@ -81,28 +83,33 @@ function init() {
 	renderer.gammaFactor = 2.2;
 
 	scene.add(new THREE.AmbientLight(0xFFFFFF, 1));
-    // 平行光源
 	const sun = new THREE.DirectionalLight(0xFFFFFF, 1);
 	sun.position.set(1, 1, 1);
 	scene.add(sun);
 	camera.position.set(32998.86609379634,23683.169594230232,-3589.9973772662483);
-	camera.rotation.set(-1.8099243120012465,0.7840724844004205,1.9031279561056308)
-	//tick();
+	camera.rotation.set(-1.8099243120012465,0.7840724844004205,1.9031279561056308);
 	renderer.setAnimationLoop(tick);
-
+	
 	function tick() {
 		/*
 		if (model != null) {
 			console.log(model);
 		}
 		*/
+		
+		// 画面描画処理
 		controls.update();
 		renderer.render(scene, camera);
-		//renderer.setAnimationLoop(tick);
 		
-		// requestAnimationFrame(tick);
+		// デバッグ用情報の表示
 		html = "[Camera Parameter]<br>X Position："+camera.position.x+"<br>Y Position："+camera.position.y+"<br>Z Position："+camera.position.z+"<br>X Rotation："+camera.rotation.x+"<br>Y Rotation："+camera.rotation.y+"<br>Z Rotation："+camera.rotation.z+"<br>X Scale："+camera.scale.x+"<br>Y Scale："+camera.scale.y+"<br>Z Scale："+camera.scale.z;
 		$("#debug_camera").html(html);
+		
+		// フェード処理
+		if (fade == 0 && $("#cover").css("opacity") <= 0) {
+			$("#cover").css("display", "none");
+			fade = 1;
+		}
 		
 		// ツールチップ処理
 		if (chip == 0) {
