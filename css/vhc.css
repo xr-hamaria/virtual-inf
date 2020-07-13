@@ -15,12 +15,33 @@ body {
 	top: 0;
 	left: 0;
 	z-index: 100;
-	background-color: rgba(0,0,0,0.7);
+	text-align: center;
+	background-color: rgb(0,0,0);
 	-webkit-transition: all 0.5s;
     -moz-transition: all 0.5s;
     -ms-transition: all 0.5s;
     -o-transition: all 0.5s;
     transition: all 0.5s;
+}
+
+#cover_loading {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translateY(-50%) translateX(-50%);
+	-webkit-transform: translateY(-50%) translateX(-50%);
+}
+
+#dialog {
+	width: 90%;
+	height: 90%;
+	position: fixed;
+	top: 5%;
+	left: 5%;
+	z-index: 101;
+	background-color: rgb(255,255,255);
+	box-shadow: 0 0 5px rgb(0,0,0);
+	display: none;
 }
 
 #information {

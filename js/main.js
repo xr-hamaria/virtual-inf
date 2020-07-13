@@ -1,6 +1,6 @@
 /*
 静岡大学 バーチャル情報学部
-Prototype / Rev.10
+Prototype / Rev.12
 
 (c)2020 Shizuoka University all rights reserved.
 Developed by Shizuoka University xR Association "Hamaria"
@@ -55,7 +55,7 @@ function init() {
 	renderer.setPixelRatio(1);
 	renderer.setSize(width, height);
 	
-	//VRボタンの有効をチェック後有効化
+	// VRボタンの有効をチェック後有効化
 	if(VRButton.enableVR()) {
 		renderer.xr.enabled = true;
 		document.body.appendChild(VRButton.createButton(renderer));
@@ -71,14 +71,14 @@ function init() {
 	const loader = new THREE.GLTFLoader();
 
 	let vrCamera = camera;
-	//VR移動用のカメラ準備
+	// VR移動用のカメラ準備
 	if(VRButton.enableVR()) {
 		vrCamera = new THREE.Object3D();
 		vrCamera.add(camera);
 		scene.add(vrCamera);
 	}
 
-	//移動関連のコンポーネント初期化
+	// 移動関連のコンポーネント初期化
 	walkthrough = new THREE.PointerLockControls(camera, document.querySelector('#canvas') );
 	walkthrough.addEventListener('lock', () => {
 		player.birdPos = new THREE.Vector3(camera.position.x, camera.position.y, camera.position.z);
@@ -150,7 +150,7 @@ function init() {
 		player.controller = null;
 	});
 
-	//移動用のキーボード処理
+	// 移動用のキーボード処理
 	function keyCheck(evt, val) {
 		switch ( evt.keyCode ) {
 			case 38: // up
