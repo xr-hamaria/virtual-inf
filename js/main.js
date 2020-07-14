@@ -102,7 +102,7 @@ function init() {
 	// 全体モデル
 	var model = null;
 	loader.load(
-		'model/campus_a_062801507.glb',
+		'model/campus.glb',
 		function (gltf) {
 			model = gltf.scene;
 			//model.scale.set(100,100,100);
