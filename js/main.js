@@ -10,9 +10,7 @@ import { VRButton } from './WebVR.js';
 
 var controls;
 var html = "";
-var mouse = { x: 0, y: 0 };
-var targetList = [];
-var renderer, scene, camera, controls, material, mesh;
+var renderer, scene, camera, controls;
 var chip = 0;
 var chip_tx = "";
 var chip_id = "";
@@ -46,7 +44,7 @@ $(window).on('touchmove.noScroll', function(e) {
 function init() {
 	// レンダラーを作成
 	renderer = new THREE.WebGLRenderer({
-		canvas: document.querySelector('#canvas'),
+		canvas: document.getElementById('canvas'),
 		antialias: true
 	});
 	var width = window.innerWidth;
@@ -58,7 +56,6 @@ function init() {
 	// VRボタンの有効をチェック後有効化
 	if(VRButton.enableVR()) {
 		renderer.xr.enabled = true;
-		document.body.appendChild(VRButton.createButton(renderer));
 	}
 
 	// シーンを作成
@@ -67,6 +64,7 @@ function init() {
 	// カメラを作成
 	camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 1000);
 	controls = new THREE.OrbitControls(camera);
+	controls.maxDistance = 600;
 
 	const loader = new THREE.GLTFLoader();
 
@@ -79,10 +77,10 @@ function init() {
 	}
 
 	// 移動関連のコンポーネント初期化
-	walkthrough = new THREE.PointerLockControls(camera, document.querySelector('#canvas') );
+	walkthrough = new THREE.PointerLockControls(camera, document.getElementById('canvas') );
 	walkthrough.addEventListener('lock', () => {
 		player.birdPos = new THREE.Vector3(camera.position.x, camera.position.y, camera.position.z);
-		camera.position.set(116, 1.2, -50);
+		camera.position.set(116, 1.4, -50);
 	});
 	walkthrough.addEventListener('unlock', () => {
 		camera.matrixWorld = player.birdMatrix;
@@ -95,10 +93,12 @@ function init() {
 	});
 	window.addEventListener('enter_vr', () => {
 		if(camera != vrCamera)
-			vrCamera.position.set(116, 1.2, -50);
+			vrCamera.position.set(116, 1.4, -50);
 	});
-
-
+	window.addEventListener('exit_vr', () => {
+		vrCamera.position.set(0, 0, 0);
+	});
+	let parentMap = {};
 	// 全体モデル
 	var model = null;
 	loader.load(
@@ -118,6 +118,19 @@ function init() {
 					child.material.polygonOffset = true;
 					child.material.polygonOffsetFactor = 1;
 					child.material.polygonOffsetUnits = -1;
+				}
+			}
+
+			let targets = [...gltf.scene.children];
+			while(targets.length > 0) {
+				let child = targets.pop();
+				for(let cc of child.children) {
+					targets.push(cc);
+				}
+				if(child.name) {
+					let parent = child;
+					while(parent.parent && parent.parent != model && (parent = parent.parent));
+					parentMap[child.name] = parent.name;
 				}
 			}
 			$("#cover").css("opacity",0);
@@ -175,6 +188,10 @@ function init() {
 	document.addEventListener( 'keydown', (evt) => keyCheck(evt, true), false );
 	document.addEventListener( 'keyup', (evt) => keyCheck(evt, false), false );
 
+	function isFirstPersonMode() {
+		return walkthrough.isLocked || renderer.xr.isPresenting;
+	}
+
 	//移動処理
 	function tickMove() {
 		const delta = (curTime - prevTime) / 1000.0;
@@ -201,6 +218,9 @@ function init() {
 		
 	}
 
+	const domChip = $("#chip");
+	const domCover = $("#cover");
+	const domDebug = $("#debug_camera");
 	function tick() {
 		curTime = performance.now();
 		/*
@@ -209,7 +229,7 @@ function init() {
 		}
 		*/
 
-		if(!walkthrough.isLocked && !renderer.xr.isPresenting) {
+		if(!isFirstPersonMode()) {
 			controls.update();
 		}
 
@@ -219,27 +239,33 @@ function init() {
 		
 		// デバッグ用情報の表示
 		html = "[Camera Parameter]<br>X Position："+camera.position.x+"<br>Y Position："+camera.position.y+"<br>Z Position："+camera.position.z+"<br>X Rotation："+camera.rotation.x+"<br>Y Rotation："+camera.rotation.y+"<br>Z Rotation："+camera.rotation.z+"<br>X Scale："+camera.scale.x+"<br>Y Scale："+camera.scale.y+"<br>Z Scale："+camera.scale.z;
-		$("#debug_camera").html(html);
+		domDebug.html(html);
 		
 		// フェード処理
-		if (fade == 0 && $("#cover").css("opacity") <= 0) {
-			$("#cover").css("display", "none");
+		if (fade == 0 && domCover.css("opacity") <= 0) {
+			domCover.css("display", "none");
 			fade = 1;
+			document.body.appendChild(VRButton.createButton(renderer));
 		}
 		
 		// ツールチップ処理
-		if (chip == 0) {
-			$("#chip").hide();
+		if(!isFirstPersonMode()) {
+			if (chip == 0) {
+				domChip.hide();
+			}
+			if (chip == 1) {
+				domChip.show();
+			}
+			domChip.text(chip_tx);
 		}
-		if (chip == 1) {
-			$("#chip").show();
-		}
-		$("#chip").text(chip_tx);
+
 		prevTime = curTime;
 	}
 }
 
 window.onmousemove = function (ev){
+	if(walkthrough && walkthrough.isLocked)
+		return;
 	var hit = 0;
 	
 	// 画面上のマウスクリック位置
@@ -281,7 +307,6 @@ window.onmousemove = function (ev){
 
 // VRモードへ切り替え
 window.changeVRMode = () => {
-	//walkthrough = true;
 	player.birdPos = camera.position;
 	player.birdMatrix = camera.matrixWorld;
 	walkthrough.lock();
