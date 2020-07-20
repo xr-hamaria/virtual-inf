@@ -12,7 +12,10 @@
 		<script src="js/PointerLockControls.js"></script>
 		<script src="js/main.js" type="module" ></script>
 		<script src="js/WebVR.js" type="module" ></script>
+		<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&display=swap" rel="stylesheet"> 
 		<link rel="stylesheet" href="css/vhc.css">
+		<link rel="stylesheet" href="css/vhc_dialog.css">
+		<link rel="shortcut icon" type="image/x-icon" href="img/favicon.ico">
 	</head>
 	<body>
 		<div id="cover">
@@ -20,7 +23,11 @@
 				<img src="img/loading.png">
 			</div>
 		</div>
-		<div id="dialog"></div>
+		<div id="dialog">
+			<div id="dialog_exit"><a href="javascript:closeDialog()"><img src="img/close.png"></a></div>
+			<div id="dialog_title">aaaaa</div>
+			<div id="dialog_main"></div>
+		</div>
 		<div id="chip"></div>
 		<div id="vr_mode">
 			<a href="javascript:closeVRMode()"><img src="img/vrend.png" class="menu-image"></a>

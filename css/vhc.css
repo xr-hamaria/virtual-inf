@@ -6,6 +6,7 @@
 body {
 	overflow-x: hidden;
 	overflow-y: hidden;
+	font-family: 'Noto Sans JP', sans-serif;
 }
 
 #cover {
@@ -53,7 +54,7 @@ body {
 }
 
 #toolbar {
-	margin: 3px;
+	margin: 6px;
 }
 
 #debug {

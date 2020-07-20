@@ -1,0 +1,24 @@
+#dialog_exit {
+	position: absolute;
+	top: 12px;
+	left: 12px;
+}
+
+#dialog_title {
+	position: absolute;
+	top: 10px;
+	left: 90px;
+	color: rgb(52, 92, 170);
+	font-size: 42px;
+	font-weight: bold;
+}
+
+#dialog_main {
+	width: 100%;
+	padding: 10px 16px;
+	position: absolute;
+	top: 85px;
+	left: 0px;
+	overflow-y: scroll;
+	box-sizing: border-box;
+}

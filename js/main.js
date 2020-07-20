@@ -1,6 +1,6 @@
 /*
 静岡大学 バーチャル情報学部
-Prototype / Rev.12
+Prototype / Rev.13
 
 (c)2020 Shizuoka University all rights reserved.
 Developed by Shizuoka University xR Association "Hamaria"
@@ -16,6 +16,8 @@ var renderer, scene, camera, controls, material, mesh;
 var chip = 0;
 var chip_tx = "";
 var chip_id = "";
+var dialog = 0;
+var dy = 0;
 var fade = 0;
 var walkthrough = null;
 var prevTime, curTime;
@@ -36,12 +38,25 @@ var player = {
 	}
 };
 
-
 window.addEventListener('DOMContentLoaded', init);
 
 $(window).on('touchmove.noScroll', function(e) {
 	e.preventDefault();
 });
+
+document.body.onclick = function() {
+	if(chip == 1) {
+		$("#dialog_title").text(chip_tx);
+		$("#cover").css("display", "block");
+		$("#cover").css("opacity",0.3);
+		$("#dialog").show(500);
+		if(chip_tx == "S-Port") {
+			$("#dialog_main").load("contents/s-port.html");
+		}
+		fade = 0;
+		dialog = 1;
+	}
+}
 
 function init() {
 	// レンダラーを作成
@@ -102,11 +117,9 @@ function init() {
 	// 全体モデル
 	var model = null;
 	loader.load(
-		'model/campus_a_062801507.glb',
+		'model/campus.glb',
 		function (gltf) {
 			model = gltf.scene;
-			//model.scale.set(100,100,100);
-			//model.position.set(0, -400, 0);
 			scene.add(gltf.scene);
 			for(let child of gltf.scene.children) {
 				if(child.material && child.name == "floor_asphalt") {
@@ -121,6 +134,7 @@ function init() {
 				}
 			}
 			$("#cover").css("opacity",0);
+			$("#cover_loading").hide();
 		},
 		function (error) {
 			console.log(error);
@@ -135,11 +149,8 @@ function init() {
 	sun.position.set(1, 1, 1);
 	scene.add(sun);
 
-	//camera.position.set(32998.86609379634,23683.169594230232,-3589.9973772662483);
-	//camera.position.set(32998.86609379634,23683.169594230232,-3589.9973772662483);
 	camera.position.set(329.9886609379634,240.83169594230232,-35.899973772662483);
 	camera.rotation.set(-1.8099243120012465,0.7840724844004205,1.9031279561056308)
-	//tick();
 	renderer.setAnimationLoop(tick);
 
 	const moveController = renderer.xr.getController(player.getControllerIndex());
@@ -175,7 +186,7 @@ function init() {
 	document.addEventListener( 'keydown', (evt) => keyCheck(evt, true), false );
 	document.addEventListener( 'keyup', (evt) => keyCheck(evt, false), false );
 
-	//移動処理
+	// 移動処理
 	function tickMove() {
 		const delta = (curTime - prevTime) / 1000.0;
 		if(renderer.xr.isPresenting && player.controller) {
@@ -234,6 +245,14 @@ function init() {
 		if (chip == 1) {
 			$("#chip").show();
 		}
+		
+		if (dialog == 1) {
+			if (dy != $("#dialog").height()) {
+				dy = $("#dialog").height();
+				$("#dialog_main").height(dy - 62);
+			}
+		}
+		
 		$("#chip").text(chip_tx);
 		prevTime = curTime;
 	}
@@ -258,15 +277,20 @@ window.onmousemove = function (ev){
 	// オブジェクトの取得
 	var intersects = raycaster.intersectObjects(scene.children, true);
 	for (var i = 0; i < intersects.length; i++) {
-		if (intersects[i].object.name.indexOf("map_5.osm_buildings.002") != -1) {
+		if (intersects[i].object.name.indexOf("Plane.002") != -1) {
 			chip = 1;
 			chip_tx = "情報学部2号館";
-			chip_id = "map_5.osm_buildings.002";
+			chip_id = "Plane.002";
 		}
 		if (intersects[i].object.name.indexOf("map_5.osm_buildings.005") != -1) {
 			chip = 1;
 			chip_tx = "共通講義棟";
 			chip_id = "map_5.osm_buildings.005";
+		}
+		if (intersects[i].object.name.indexOf("map_5.osm_buildings.030") != -1) {
+			chip = 1;
+			chip_tx = "S-Port";
+			chip_id = "map_5.osm_buildings.030";
 		}
 		if (chip == 1) {
 			$("#chip").css("left", x);
@@ -281,11 +305,9 @@ window.onmousemove = function (ev){
 
 // VRモードへ切り替え
 window.changeVRMode = () => {
-	//walkthrough = true;
 	player.birdPos = camera.position;
 	player.birdMatrix = camera.matrixWorld;
 	walkthrough.lock();
-
 	$("#information").hide(500);
 	$("#copyright").hide(500);
 	$("#vr_mode").show(500);
@@ -302,4 +324,12 @@ window.closeVRMode = () => {
 // デバッグウインドウ
 window.toggleDebugWindow = () => {
 	$("#debug").slideToggle(500);
+};
+
+// ダイアログを閉じる
+window.closeDialog = () => {
+	dialog = 0;
+	$("#dialog").hide(500);
+	$("#cover").css("opacity",0);
+	$("#cover_loading").hide();
 };

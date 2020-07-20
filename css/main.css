@@ -6,102 +6,112 @@
 body {
 	font-family: "ヒラギノ角ゴ Pro W3", "Hiragino Kaku Gothic Pro", "メイリオ", Meiryo, Osaka, "ＭＳ Ｐゴシック", "MS PGothic", sans-serif;
 	font-size: 16px;
-	background-color: rgb(52,92,170);
 }
 
-a {
-	color: rgb(52,92,170);
+p a {
+	color: rgb(52, 92, 170);
 }
 
-a:hover {
+p a:hover {
 	opacity: 0.7;
 }
 
+.page {
+	padding: 50px 0;
+}
+
+.page-white {
+	color: rgb(255, 255, 255);
+	text-shadow: 0 0 2px rgb(0, 0, 0);
+}
+
+.page-white a {
+	color: rgb(255, 255, 255);
+}
+
 .wrapper {
-	width: 800px;
+	width: 1100px;
 	margin: auto;
-	background-color: white;
+	overflow: hidden;
+}
+
+.wrapper h1 {
+	margin: 20px 0;
+	font-size: 32px;
+	font-weight: normal;
+}
+
+.wrapper p {
+	margin: 20px 0;
+}
+
+.wrapper-logo {
+	width: 500px;
+}
+
+.wrapper-left {
+	width: 500px;
+	float: left;
 	box-sizing: border-box;
 }
 
-.header {
-	padding: 40px 0;
+.wrapper-right {
+	width: 500px;
+	float: right;
+	box-sizing: border-box;
+}
+
+.wrapper-start {
+	text-decoration: none;
+}
+
+.wrapper-start div {
+	width: 500px;
+	margin: 40px 0;
+	padding: 10px;
+	border: solid 1px rgb(52, 92, 170);
 	text-align: center;
-	background-image: url("../img/top_bg.png");
+	color: rgb(52, 92, 170);
 }
 
-.header-logo {
-	width: 75%;
+.wrapper-start div:hover {
+	background-color: rgb(52, 92, 170);
+	color: rgb(255, 255, 255);
+	opacity: 1;
 }
 
-.start {
-	padding-top: 20px;
-	padding-bottom: 10px;
-	text-align: center;
-}
-
-.start p {
-	padding: 10px 0;
+.wrapper-info {
 	font-size: 12px;
 }
 
-.start video {
-	width: 75%;
-	padding-top: 5px;
-	padding-bottom: 15px;
+.wrapper-movie {
+	width: 500px;
+	margin: 40px 0;
 }
 
-.contents {
-	padding: 20px;
-}
-
-.contents h1 {
-	margin-top: 20px;
-	padding: 10px 15px;
-	border: solid 1px #95a5a6;
-	border-bottom: solid 2px rgb(52,92,170);
-	color: rgb(52,92,170);
-	font-size: 20px;
-	font-weight: normal;
-	background: linear-gradient(rgb(255,255,255),rgb(240,241,246));
-}
-
-.contents p, .contents table {
-	padding: 15px 20px;
-}
-
-.contents th {
-	padding-right: 40px;
-	vertical-align: top;
-}
-
-.update {
-	height: 150px;
-	overflow-y: scroll;
+.wrapper-image {
+	width: 500px;
+	margin: 20px 0;
 }
 
 .footer {
-	width: 800px;
-	margin: 20px auto;
-	text-align: center;
-	color: rgb(255,255,255);
+	background-color: rgb(236, 240, 241);
 	font-size: 12px;
 }
 
-.footer p {
-	padding: 10px 0;
-}
-
-@media screen and ( max-width: 820px ){
-	.wrapper, .footer {
-		width: 100%;
+@media screen and ( max-width: 1120px ){
+	body {
+		margin-top: -60px;
 	}
-	.start, .contents, .footer {
-		padding-left: 10px;
-		padding-right: 10px;
+	.page, .wrapper, .wrapper-left, .wrapper-right, .footer, .wrapper-logo, .wrapper-movie, .wrapper-image, .wrapper-start div {
+		width: 100%;
 		box-sizing: border-box;
 	}
-	.start img {
-		width: 75%;
+	.wrapper {
+		padding: 30px;
+	}
+	.wrapper-start {
+		display: block;
+		margin-top: -20px;
 	}
 }
