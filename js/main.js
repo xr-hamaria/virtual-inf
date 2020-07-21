@@ -83,19 +83,19 @@ $(window).on('touchmove.noScroll', function(e) {
 	e.preventDefault();
 });
 
-document.body.addEventListener('mousedown', (evt) => {
+document.getElementById('canvas').addEventListener('mousedown', (evt) => {
 	clicker.prev = {x:evt.screenX, y:evt.screenY};
 });
-document.body.addEventListener('touchstart', (evt) => {
+document.getElementById('canvas').addEventListener('touchstart', (evt) => {
 	clicker.prev = {x:evt.screenX, y:evt.screenY};
 });
-document.body.addEventListener('touchend', (evt) => {
+document.getElementById('canvas').addEventListener('touchend', (evt) => {
 	let d = (evt.screenX - clicker.prev.x) * (evt.screenX - clicker.prev.x) + (evt.screenY - clicker.prev.y) * (evt.screenY - clicker.prev.y);
 	if(d <= 16) {
 		bodyClick();
 	}
 });
-document.body.addEventListener('mouseup', (evt) => {
+document.getElementById('canvas').addEventListener('mouseup', (evt) => {
 	let d = (evt.screenX - clicker.prev.x) * (evt.screenX - clicker.prev.x) + (evt.screenY - clicker.prev.y) * (evt.screenY - clicker.prev.y);
 	if(d <= 16) {
 		bodyClick();
@@ -299,6 +299,8 @@ function init() {
 
 		if(!isFirstPersonMode()) {
 			controls.update();
+		} else {
+			domChip.hide();
 		}
 
 		tickMove();
