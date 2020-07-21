@@ -8,7 +8,6 @@ Developed by Shizuoka University xR Association "Hamaria"
 
 import { VRButton } from './WebVR.js';
 
-var controls;
 var html = "";
 var renderer, scene, camera, controls;
 var chip = 0;
@@ -19,6 +18,7 @@ var dy = 0;
 var fade = 0;
 var walkthrough = null;
 var prevTime, curTime;
+var clicker = {prev:{}, next: {}}
 var player = {
 	speed: 7.0,
 	controller: null,
@@ -36,24 +36,85 @@ var player = {
 	}
 };
 
+const domChip = $("#chip");
+const domCover = $("#cover");
+const domDebug = $("#debug_camera");
+const domDialog = $("#dialog");
+
+var parentMap = {};
+const ChipBase = function(id, label, impl = false) {
+	this.id = id;
+	this.label = label;
+	this.impl = impl;
+};
+const toolChips = {
+	inf_1: new ChipBase("inf_1", "情報学部1号館"),
+	inf_2: new ChipBase("inf_2", "情報学部2号館"),
+	s_port: new ChipBase("s-port", "S-Port", true),
+	innovation: new ChipBase("innovation", "イノベーション社会連携推進機構"),
+	south_hall: new ChipBase("south_hall", "南会館"),
+	sanaru_hall: new ChipBase("sanaru_hall", "佐鳴会館"),
+	kagai: new ChipBase("kagai", "課外活動共同施設"),
+	takayanagi: new ChipBase("takayanagi", "高柳記念未来技術創造館"),
+	budo: new ChipBase("budo", "武道場"),
+	gym: new ChipBase("gym", "体育館"),
+	north_hall: new ChipBase("north_hall", "北会館"),
+	eng_8: new ChipBase("eng_8", "工学部8号館"),
+	eng_7: new ChipBase("eng_7", "工学部7号館"),
+	eng_4: new ChipBase("eng_4", "工学部4号館"),
+	eng_5: new ChipBase("eng_5", "工学部5号館"),
+	monozukuri_house: new ChipBase("monozukuri_house", "ものづくり館"),
+	monozukuri_center: new ChipBase("monozukuri_center", "ものづくりセンター"),
+	eng_1: new ChipBase("eng_1", "工学部1号館"),
+	eng_2: new ChipBase("eng_2", "工学部2号館"),
+	eng_6: new ChipBase("eng_6", "工学部6号館"),
+	eng_3: new ChipBase("eng_3", "工学部3号館"),
+	nanodevice: new ChipBase("nanodevice", "ナノデバイス"),
+	electronics: new ChipBase("electronics", "電子工学研究拠点"),
+	hikari_soki: new ChipBase("hikari_soki", "光創起イノベーション研究拠点"),
+	inf_graduate: new ChipBase("inf_graduate", "創造科学技術大学院"),
+	lecture_building: new ChipBase("lecture_building", "共通講義棟"),
+	sogo: new ChipBase("sogo", "総合研究棟"),
+};
+
 window.addEventListener('DOMContentLoaded', init);
 
 $(window).on('touchmove.noScroll', function(e) {
 	e.preventDefault();
 });
 
-document.body.onclick = function() {
-	if(chip == 1) {
-		$("#dialog_title").text(chip_tx);
-		$("#cover").css("display", "block");
-		$("#cover").css("opacity",0.3);
-		$("#dialog").show(500);
-		if(chip_tx == "S-Port") {
-			$("#dialog_main").load("contents/s-port.html");
-		}
-		fade = 0;
-		dialog = 1;
+document.body.addEventListener('mousedown', (evt) => {
+	clicker.prev = {x:evt.screenX, y:evt.screenY};
+});
+document.body.addEventListener('touchstart', (evt) => {
+	clicker.prev = {x:evt.screenX, y:evt.screenY};
+});
+document.body.addEventListener('touchend', (evt) => {
+	let d = (evt.screenX - clicker.prev.x) * (evt.screenX - clicker.prev.x) + (evt.screenY - clicker.prev.y) * (evt.screenY - clicker.prev.y);
+	if(d <= 16) {
+		bodyClick();
 	}
+});
+document.body.addEventListener('mouseup', (evt) => {
+	let d = (evt.screenX - clicker.prev.x) * (evt.screenX - clicker.prev.x) + (evt.screenY - clicker.prev.y) * (evt.screenY - clicker.prev.y);
+	if(d <= 16) {
+		bodyClick();
+	}
+});
+
+function bodyClick() {
+	if(chip == 0)
+		return;
+	$("#dialog_title").text(chip_tx);
+	$("#cover").css("display", "block").css("opacity",0.3);;
+	domDialog.show(500);
+	if(toolChips[chip_id] && toolChips[chip_id].impl) {
+		$("#dialog_main").load(`contents/${toolChips[chip_id].id}.html`);
+	} else {
+		$("#dialog_main").html('');
+	}
+	fade = 0;
+	dialog = 1;
 }
 
 function init() {
@@ -113,7 +174,6 @@ function init() {
 	window.addEventListener('exit_vr', () => {
 		vrCamera.position.set(0, 0, 0);
 	});
-	let parentMap = {};
 	// 全体モデル
 	var model = null;
 	loader.load(
@@ -228,9 +288,7 @@ function init() {
 		
 	}
 
-	const domChip = $("#chip");
-	const domCover = $("#cover");
-	const domDebug = $("#debug_camera");
+
 	function tick() {
 		curTime = performance.now();
 		/*
@@ -267,17 +325,16 @@ function init() {
 				domChip.show();
 			}
 			domChip.text(chip_tx);
-		}
-
 		
-		if (dialog == 1) {
-			if (dy != $("#dialog").height()) {
-				dy = $("#dialog").height();
-				$("#dialog_main").height(dy - 62);
+			if (dialog == 1) {
+				if (dy != domDialog.height()) {
+					dy = domDialog.height();
+					$("#dialog_main").height(dy - 62);
+				}
 			}
-		}
 		
-		$("#chip").text(chip_tx);
+			domChip.text(chip_tx);
+		}
 		prevTime = curTime;
 	}
 }
@@ -285,7 +342,7 @@ function init() {
 window.onmousemove = function (ev){
 	if(walkthrough && walkthrough.isLocked)
 		return;
-	var hit = 0;
+	var hit = false;
 	
 	// 画面上のマウスクリック位置
 	var x = event.clientX;
@@ -303,30 +360,19 @@ window.onmousemove = function (ev){
 	// オブジェクトの取得
 	var intersects = raycaster.intersectObjects(scene.children, true);
 	for (var i = 0; i < intersects.length; i++) {
-		if (intersects[i].object.name.indexOf("Plane.002") != -1) {
+		const parent = parentMap[intersects[i].object.name];
+		if(parent && toolChips[parent]) {
+			domChip.css("left", x).css("top", y);
+			chip_id = parent;
+			chip_tx = toolChips[parent].label;
 			chip = 1;
-			chip_tx = "情報学部2号館";
-			chip_id = "Plane.002";
-		}
-		if (intersects[i].object.name.indexOf("map_5.osm_buildings.005") != -1) {
-			chip = 1;
-			chip_tx = "共通講義棟";
-			chip_id = "map_5.osm_buildings.005";
-		}
-		if (intersects[i].object.name.indexOf("map_5.osm_buildings.030") != -1) {
-			chip = 1;
-			chip_tx = "S-Port";
-			chip_id = "map_5.osm_buildings.030";
-		}
-		if (chip == 1) {
-			$("#chip").css("left", x);
-			$("#chip").css("top", y);
-		}
-		if (intersects[i].object.name.indexOf(chip_id) != -1) {
-			hit++;
+			hit = true;
+			break;
 		}
 	}
-	if (hit == 0){ chip = 0; }
+	if (!hit) { 
+		chip = 0;
+	}
 }
 
 // VRモードへ切り替え
