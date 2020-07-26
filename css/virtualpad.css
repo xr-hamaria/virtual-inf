@@ -1,0 +1,43 @@
+.virtualpad {
+    width: 60px;
+    height: 60;
+    position: fixed;
+    z-index: 999;
+    display: none;
+}
+
+@media screen and (orientation: landscape) {
+    .virtualpad {
+        top: calc(100vh - 150px);
+        left: 100px;
+        margin: 20px;
+    }
+}
+ @media screen and (orientation: portrait) {
+    .virtualpad {
+        top: calc(100vh - 250px);
+        left: calc(50vw - 30px);
+    }
+ }
+
+.virtualpad-back {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 60px;
+    height: 60px;
+    background-color: white;
+    opacity: 0.3;
+    border-radius: 50px;
+}
+
+.virtualpad-control {
+    position: absolute;
+    top: 5px;
+    left: 5px;
+    width: 50px;
+    height: 50px;
+    background-color: white;
+    opacity: 0.5;
+    border-radius: 50px;
+}

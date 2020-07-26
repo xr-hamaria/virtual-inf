@@ -7,6 +7,7 @@ Developed by Shizuoka University xR Association "Hamaria"
 */
 
 import { VRButton } from './WebVR.js';
+import { VirtualPad } from './virtualpad.js';
 
 var html = "";
 var renderer, scene, camera, controls;
@@ -157,6 +158,9 @@ function init() {
 	walkthrough.addEventListener('lock', () => {
 		player.birdPos = new THREE.Vector3(camera.position.x, camera.position.y, camera.position.z);
 		camera.position.set(116, 1.4, -50);
+		if(!walkthrough.desktopMode) {
+			VirtualPad.show();
+		}
 	});
 	walkthrough.addEventListener('unlock', () => {
 		camera.matrixWorld = player.birdMatrix;
@@ -166,7 +170,15 @@ function init() {
 		$("#information").show(500);
 		$("#copyright").show(500);
 		$("#vr_mode").hide(500);
+		$("#VRButton").hide(500);
+		if(!walkthrough.desktopMode) {
+			VirtualPad.hide();
+		}
 	});
+
+	if(!walkthrough.desktopMode) {
+		VirtualPad.init();
+	}
 	window.addEventListener('enter_vr', () => {
 		if(camera != vrCamera)
 			vrCamera.position.set(116, 1.4, -50);
@@ -279,8 +291,14 @@ function init() {
 
 		if(walkthrough.isLocked) {
 			let dir = new THREE.Vector3();
-			dir.z = Number(player.inputs[0]) - Number(player.inputs[2]);
-			dir.x = Number(player.inputs[3]) - Number(player.inputs[1]);
+			if(!walkthrough.desktopMode) {
+				let d = VirtualPad.getVector();
+				dir.z = -d.y;
+				dir.x = d.x;
+			} else {
+				dir.z = Number(player.inputs[0]) - Number(player.inputs[2]);
+				dir.x = Number(player.inputs[3]) - Number(player.inputs[1]);
+			}
 			dir.normalize();
 			walkthrough.moveRight(dir.x * player.speed * delta);
 			walkthrough.moveForward(dir.z * player.speed * delta);
@@ -315,7 +333,8 @@ function init() {
 		if (fade == 0 && domCover.css("opacity") <= 0) {
 			domCover.css("display", "none");
 			fade = 1;
-			document.body.appendChild(VRButton.createButton(renderer));
+			if(VRButton.enableVR())
+				document.body.appendChild(VRButton.createButton(renderer));
 		}
 		
 		// ツールチップ処理
@@ -385,6 +404,7 @@ window.changeVRMode = () => {
 	$("#information").hide(500);
 	$("#copyright").hide(500);
 	$("#vr_mode").show(500);
+	$("#VRButton").show(500);
 };
 
 // VRモードの終了
@@ -393,6 +413,7 @@ window.closeVRMode = () => {
 	$("#information").show(500);
 	$("#copyright").show(500);
 	$("#vr_mode").hide(500);
+	$("#VRButton").hide(500);
 };
 
 // デバッグウインドウ
