@@ -1,6 +1,6 @@
 /*
 静岡大学 バーチャル情報学部
-Prototype / Rev.13
+Prototype / Rev.14
 
 (c)2020 Shizuoka University all rights reserved.
 Developed by Shizuoka University xR Association "Hamaria"
@@ -28,10 +28,10 @@ var player = {
 	getControllerIndex : function() {
 		return 0;
 	},
-	getHorizontal : function(pad) {	//must return -1.0 ~ 1.0
+	getHorizontal : function(pad) {	// must return -1.0 ~ 1.0
 		return -pad.axes[3];
 	},
-	getVertical : function(pad) {	//must return -1.0 ~ 1.0
+	getVertical : function(pad) {	// must return -1.0 ~ 1.0
 		return pad.axes[2];
 	}
 };
