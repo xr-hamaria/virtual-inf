@@ -19,7 +19,6 @@ var dy = 0;
 var fade = 0;
 var walkthrough = null;
 var prevTime, curTime;
-var clicker = {prev:{}, next: {}}
 var player = {
 	speed: 7.0,
 	controller: null,
@@ -84,26 +83,41 @@ $(window).on('touchmove.noScroll', function(e) {
 	e.preventDefault();
 });
 
-document.getElementById('canvas').addEventListener('mousedown', (evt) => {
-	clicker.prev = {x:evt.screenX, y:evt.screenY};
-});
-document.getElementById('canvas').addEventListener('touchstart', (evt) => {
-	clicker.prev = {x:evt.screenX, y:evt.screenY};
-});
-document.getElementById('canvas').addEventListener('touchend', (evt) => {
-	let d = (evt.screenX - clicker.prev.x) * (evt.screenX - clicker.prev.x) + (evt.screenY - clicker.prev.y) * (evt.screenY - clicker.prev.y);
-	if(d <= 16) {
-		bodyClick();
+function tapHandler(dom, callback) {
+	let clickPos = {x:0,y:0};
+	let cancel = false;
+	const anchors = document.querySelectorAll('a');
+	dom.addEventListener('mousedown', (evt) => {
+		clickPos = {x:evt.screenX, y:evt.screenY};
+		cancel = false;
+	}, false);
+	
+	dom.addEventListener('touchstart', evt => {
+		clickPos = {x:evt.screenX, y:evt.screenY};
+		cancel = false;
+	}, false);
+	function upHandler(evt) {
+		const d = (evt.screenX - clickPos.x) * (evt.screenX - clickPos.x) + (evt.screenY - clickPos.y) * (evt.screenY - clickPos.y);
+		if(d <= 16) {
+			callback();
+		}
 	}
-});
-document.getElementById('canvas').addEventListener('mouseup', (evt) => {
-	let d = (evt.screenX - clicker.prev.x) * (evt.screenX - clicker.prev.x) + (evt.screenY - clicker.prev.y) * (evt.screenY - clicker.prev.y);
-	if(d <= 16) {
-		bodyClick();
-	}
-});
+	dom.addEventListener('touchend', evt => upHandler(evt), false);
+	dom.addEventListener('mouseup', evt => upHandler(evt), false);
 
-function bodyClick() {
+	
+	// for iOS
+	function preventScroll(evt) {
+		if(event.touches.length >= 2) {
+			evt.preventDefault();
+		}
+	}
+	document.addEventListener('touchstart', evt => preventScroll(evt),  { passive: false });
+	document.addEventListener('touchmove', evt => preventScroll(evt),  { passive: false });
+
+}
+
+tapHandler(window, () => {
 	if(chip == 0)
 		return;
 	$("#dialog_title").text(chip_tx);
@@ -116,7 +130,7 @@ function bodyClick() {
 	}
 	fade = 0;
 	dialog = 1;
-}
+});
 
 function init() {
 	// レンダラーを作成
@@ -129,7 +143,6 @@ function init() {
 	renderer.setClearColor(0x345CAA);
 	renderer.setPixelRatio(1);
 	renderer.setSize(width, height);
-	
 	// VRボタンの有効をチェック後有効化
 	if(VRButton.enableVR()) {
 		renderer.xr.enabled = true;
@@ -153,6 +166,14 @@ function init() {
 		scene.add(vrCamera);
 	}
 
+	window.addEventListener('resize', () => {
+		width = window.innerWidth;
+		height = window.innerHeight;
+		renderer.setSize(width, height);
+		camera.aspect = window.innerWidth / window.innerHeight;
+		camera.updateProjectionMatrix();
+	}, false);
+	
 	// 移動関連のコンポーネント初期化
 	walkthrough = new THREE.PointerLockControls(camera, document.getElementById('canvas') );
 	walkthrough.addEventListener('lock', () => {
@@ -170,7 +191,7 @@ function init() {
 		$("#information").show(500);
 		$("#copyright").show(500);
 		$("#vr_mode").hide(500);
-		$("#VRButton").hide(500);
+		$("#VRButton").show(500);
 		if(!walkthrough.desktopMode) {
 			VirtualPad.hide();
 		}
@@ -360,19 +381,19 @@ function init() {
 	}
 }
 
-window.onmousemove = function (ev){
-	if(walkthrough && walkthrough.isLocked)
+window.addEventListener('mousemove', function (ev){
+	if(!(scene && controls) || (walkthrough && walkthrough.isLocked))
 		return;
 	var hit = false;
 	
 	// 画面上のマウスクリック位置
 	var x = event.clientX;
 	var y = event.clientY;
-	
+	const size = renderer.getSize();
 	// マウスクリック位置を正規化
 	var mouse = new THREE.Vector2();
-	mouse.x =  ( x / window.innerWidth ) * 2 - 1;
-	mouse.y = -( y / window.innerHeight ) * 2 + 1;
+	mouse.x =  ( x / size.x ) * 2 - 1;
+	mouse.y = -( y / size.y ) * 2 + 1;
 	
 	// Raycasterインスタンス作成
 	var raycaster = new THREE.Raycaster();
@@ -394,7 +415,7 @@ window.onmousemove = function (ev){
 	if (!hit) { 
 		chip = 0;
 	}
-}
+});
 
 // VRモードへ切り替え
 window.changeVRMode = () => {
@@ -404,7 +425,7 @@ window.changeVRMode = () => {
 	$("#information").hide(500);
 	$("#copyright").hide(500);
 	$("#vr_mode").show(500);
-	$("#VRButton").show(500);
+	$("#VRButton").hide(500);
 };
 
 // VRモードの終了
@@ -413,7 +434,7 @@ window.closeVRMode = () => {
 	$("#information").show(500);
 	$("#copyright").show(500);
 	$("#vr_mode").hide(500);
-	$("#VRButton").hide(500);
+	$("#VRButton").show(500);
 };
 
 // デバッグウインドウ

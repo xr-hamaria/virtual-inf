@@ -17,7 +17,7 @@ var VirtualPad = {
         domPad.addEventListener('touchstart', (evt) => {
             sx = evt.changedTouches[0].screenX || 0;
             sy = evt.changedTouches[0].screenY || 0;
-        }, true);
+        }, false);
 
         domPad.addEventListener('touchmove', (evt) => {
             const cx = evt.changedTouches[0].screenX || 0;
@@ -30,7 +30,7 @@ var VirtualPad = {
             domControl.style.top = (inity + 0 + vy * 20) + 'px';
             domControl.style.left = (initx + 0 + vx * 20) + 'px';
             vector = {x:vx, y:vy};
-        }, true);
+        }, false);
 
         domPad.addEventListener('touchend', (evt) => {
             sx = 0;
@@ -39,7 +39,7 @@ var VirtualPad = {
             domControl.style.left = initx + 'px';
             vector = {x:0, y:0};
 
-        }, true);
+        }, false);
     },
     show: function() {
         domPad.style.display = 'block';
