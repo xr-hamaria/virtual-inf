@@ -1,6 +1,6 @@
 /*
 静岡大学 バーチャル情報学部
-Prototype / Rev.14
+Prototype / Rev.15
 
 (c)2020 Shizuoka University all rights reserved.
 Developed by Shizuoka University xR Association "Hamaria"
@@ -11,9 +11,9 @@ import { VirtualPad } from './virtualpad.js';
 
 var html = "";
 var renderer, scene, camera, controls;
-var chip = 0;
-var chip_tx = "";
-var chip_id = "";
+var tip = 0;
+var tip_tx = "";
+var tip_id = "";
 var dialog = 0;
 var dy = 0;
 var fade = 0;
@@ -37,45 +37,48 @@ var player = {
 	}
 };
 
-const domChip = $("#chip");
+const domtip = $("#tip");
 const domCover = $("#cover");
 const domDebug = $("#debug_camera");
 const domDialog = $("#dialog");
 
 var parentMap = {};
-const ChipBase = function(id, label, impl = false) {
+const TipBase = function(id, label, impl, doc, pic = false) {
 	this.id = id;
 	this.label = label;
 	this.impl = impl;
+	this.doc = doc;
+	this.pic = pic;
 };
-const toolChips = {
-	inf_1: new ChipBase("inf_1", "情報学部1号館"),
-	inf_2: new ChipBase("inf_2", "情報学部2号館"),
-	s_port: new ChipBase("s-port", "S-Port", true),
-	innovation: new ChipBase("innovation", "イノベーション社会連携推進機構"),
-	south_hall: new ChipBase("south_hall", "南会館"),
-	sanaru_hall: new ChipBase("sanaru_hall", "佐鳴会館"),
-	kagai: new ChipBase("kagai", "課外活動共同施設"),
-	takayanagi: new ChipBase("takayanagi", "高柳記念未来技術創造館"),
-	budo: new ChipBase("budo", "武道場"),
-	gym: new ChipBase("gym", "体育館"),
-	north_hall: new ChipBase("north_hall", "北会館"),
-	eng_8: new ChipBase("eng_8", "工学部8号館"),
-	eng_7: new ChipBase("eng_7", "工学部7号館"),
-	eng_4: new ChipBase("eng_4", "工学部4号館"),
-	eng_5: new ChipBase("eng_5", "工学部5号館"),
-	monozukuri_house: new ChipBase("monozukuri_house", "ものづくり館"),
-	monozukuri_center: new ChipBase("monozukuri_center", "ものづくりセンター"),
-	eng_1: new ChipBase("eng_1", "工学部1号館"),
-	eng_2: new ChipBase("eng_2", "工学部2号館"),
-	eng_6: new ChipBase("eng_6", "工学部6号館"),
-	eng_3: new ChipBase("eng_3", "工学部3号館"),
-	nanodevice: new ChipBase("nanodevice", "ナノデバイス"),
-	electronics: new ChipBase("electronics", "電子工学研究拠点"),
-	hikari_soki: new ChipBase("hikari_soki", "光創起イノベーション研究拠点"),
-	inf_graduate: new ChipBase("inf_graduate", "創造科学技術大学院"),
-	lecture_building: new ChipBase("lecture_building", "共通講義棟"),
-	sogo: new ChipBase("sogo", "総合研究棟"),
+const toolTip = {
+	inf_1: new TipBase("inf_1", "情報学部1号館"),
+	inf_2: new TipBase("inf_2", "情報学部2号館", true, true, true),
+	s_port: new TipBase("s-port", "S-Port", true, true, true),
+	innovation: new TipBase("innovation", "イノベーション社会連携推進機構"),
+	south_hall: new TipBase("south_hall", "南会館", true, true, true),
+	sanaru_hall: new TipBase("sanaru_hall", "佐鳴会館"),
+	kagai: new TipBase("kagai", "課外活動共同施設"),
+	takayanagi: new TipBase("takayanagi", "高柳記念未来技術創造館"),
+	budo: new TipBase("budo", "武道場"),
+	gym: new TipBase("gym", "体育館"),
+	north_hall: new TipBase("north_hall", "北会館", true, true, true),
+	eng_8: new TipBase("eng_8", "工学部8号館"),
+	eng_7: new TipBase("eng_7", "工学部7号館"),
+	eng_4: new TipBase("eng_4", "工学部4号館"),
+	eng_5: new TipBase("eng_5", "工学部5号館"),
+	monozukuri_house: new TipBase("monozukuri_house", "ものづくり館"),
+	monozukuri_center: new TipBase("monozukuri_center", "ものづくりセンター"),
+	eng_1: new TipBase("eng_1", "工学部1号館"),
+	eng_2: new TipBase("eng_2", "工学部2号館"),
+	eng_6: new TipBase("eng_6", "工学部6号館"),
+	eng_3: new TipBase("eng_3", "工学部3号館"),
+	nanodevice: new TipBase("nanodevice", "ナノデバイス作製・評価センター"),
+	electronics: new TipBase("electronics", "電子工学研究所"),
+	hikari_soki: new TipBase("hikari_soki", "光創起イノベーション研究拠点棟"),
+	inf_graduate: new TipBase("inf_graduate", "創造科学技術大学院"),
+	lecture_building: new TipBase("lecture_building", "共通講義棟", true, true, true),
+	sogo: new TipBase("sogo", "総合研究棟"),
+	hei: new TipBase("hei", "スタッフクレジット", true)
 };
 
 window.addEventListener('DOMContentLoaded', init);
@@ -118,18 +121,20 @@ function tapHandler(dom, callback) {
 }
 
 tapHandler(window, () => {
-	if(chip == 0)
-		return;
-	$("#dialog_title").text(chip_tx);
-	$("#cover").css("display", "block").css("opacity",0.3);
-	domDialog.show(500);
-	if(toolChips[chip_id] && toolChips[chip_id].impl) {
-		$("#dialog_main").load(`contents/${toolChips[chip_id].id}.html`);
-	} else {
-		$("#dialog_main").html('');
+	if(dialog == 0 && tip_id != "" && toolTip[tip_id].impl == true) {
+		if(tip == 0)
+			return;
+		$("#dialog_title").text(tip_tx);
+		$("#cover").css("display", "block").css("opacity",0.3);
+		domDialog.show(500);
+		if(toolTip[tip_id] && toolTip[tip_id].impl) {
+			$("#dialog_main").load(`contents/${toolTip[tip_id].id}.html`);
+		} else {
+			$("#dialog_main").html('');
+		}
+		fade = 0;
+		dialog = 1;
 	}
-	fade = 0;
-	dialog = 1;
 });
 
 function init() {
@@ -354,9 +359,11 @@ function init() {
 		*/
 
 		if(!isFirstPersonMode()) {
-			controls.update();
+			if(dialog == 0) {
+				controls.update();
+			}
 		} else {
-			domChip.hide();
+			domtip.hide();
 		}
 
 		tickMove();
@@ -378,22 +385,31 @@ function init() {
 		
 		// ツールチップ処理
 		if(!isFirstPersonMode()) {
-			if (chip == 0) {
-				domChip.hide();
+			if (tip == 0) {
+				domtip.hide();
 			}
-			if (chip == 1) {
-				domChip.show();
+			if (tip == 1) {
+				domtip.show();
 			}
-			domChip.text(chip_tx);
-		
+			
 			if (dialog == 1) {
 				if (dy != domDialog.height()) {
 					dy = domDialog.height();
-					$("#dialog_main").height(dy - 62);
+					$("#dialog_main").height(dy - 105);
 				}
 			}
-		
-			domChip.text(chip_tx);
+			
+			if (tip_id != "") {
+				var tip_html = "";
+				tip_html += "<span>"+tip_tx+"</span>";
+				if (toolTip[tip_id].doc) {
+					tip_html += "<img src='img/icon/icon-expl.png' class='icon-first'>";
+				}
+				if (toolTip[tip_id].pic) {
+					tip_html += "<img src='img/icon/icon-photo.png'>";
+				}
+				domtip.html(tip_html);
+			}
 		}
 		prevTime = curTime;
 	}
@@ -421,17 +437,17 @@ window.addEventListener('mousemove', function (ev){
 	var intersects = raycaster.intersectObjects(scene.children, true);
 	for (var i = 0; i < intersects.length; i++) {
 		const parent = parentMap[intersects[i].object.name];
-		if(parent && toolChips[parent]) {
-			domChip.css("left", x).css("top", y);
-			chip_id = parent;
-			chip_tx = toolChips[parent].label;
-			chip = 1;
+		if(parent && toolTip[parent]) {
+			domtip.css("left", x).css("top", y);
+			tip_id = parent;
+			tip_tx = toolTip[parent].label;
+			tip = 1;
 			hit = true;
 			break;
 		}
 	}
 	if (!hit) { 
-		chip = 0;
+		tip = 0;
 	}
 });
 

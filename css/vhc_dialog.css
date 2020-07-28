@@ -22,3 +22,33 @@
 	overflow-y: scroll;
 	box-sizing: border-box;
 }
+
+#dialog_main h1 {
+	margin-bottom: 20px;
+}
+
+#dialog_main p {
+	margin-top: 10px;
+	margin-bottom: 20px;
+}
+
+#dialog_main h1 {
+	color: rgb(52, 92, 170);
+	font-size: 26px;
+	font-weight: normal;
+}
+
+#dialog_main a {
+	color: rgb(52, 92, 170);
+}
+
+#dialog_main a:hover {
+	opacity: 0.7;
+}
+
+#dialog_main img.dialog_photo {
+	width: 20%;
+	padding-right: 14px;
+	padding-bottom: 9px;
+	box-sizing: border-box;
+}
