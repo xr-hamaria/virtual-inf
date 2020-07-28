@@ -26,6 +26,7 @@ var WEBVR = {
 
 			button.onclick = function () {
 				device.isPresenting ? device.exitPresent() : device.requestPresent( [ { source: renderer.domElement } ] );
+				return true;
 			};
 
 			//renderer.xr.setDevice( device );
@@ -47,7 +48,6 @@ var WEBVR = {
 			}
 
 			function onSessionEnded( event ) {
-
 				currentSession.removeEventListener( 'end', onSessionEnded );
 
 				renderer.xr.setSession( null );
@@ -55,7 +55,6 @@ var WEBVR = {
 
 				currentSession = null;
 				window.dispatchEvent(eventExitVR);
-
 			}
 
 			//
@@ -72,17 +71,11 @@ var WEBVR = {
 			button.onmouseleave = function () { button.style.opacity = '0.5'; };
 
 			button.onclick = function () {
-
 				if ( currentSession === null ) {
-
 					device.requestSession( { exclusive: true } ).then( onSessionStarted );
-
 				} else {
-
 					currentSession.end();
-
 				}
-
 			};
 
 			//renderer.xr.setDevice( device );
@@ -109,7 +102,6 @@ var WEBVR = {
 		}
 
 		function stylizeElement( element ) {
-
 			element.style.position = 'absolute';
 			element.style.bottom = '20px';
 			element.style.padding = '12px 6px';
@@ -128,26 +120,16 @@ var WEBVR = {
 		var isWebXR = false;
 /*
 		if ( 'xr' in navigator ) {
-
 			isWebXR = true;
-
 			var button = document.createElement( 'button' );
 			button.style.display = 'none';
-
 			stylizeElement( button );
-
 			navigator.xr.requestDevice().then( function ( device ) {
-
 				device.supportsSession( { exclusive: true } ).then( function () {
-
 					showEnterXR( device );
-
 				} ).catch( showVRNotFound );
-
 			} ).catch( showVRNotFound );
-
 			return button;
-
 		} else
 		*/
 		if ( 'getVRDisplays' in navigator ) {
@@ -158,21 +140,15 @@ var WEBVR = {
 			stylizeElement( button );
 
 			window.addEventListener( 'vrdisplayconnect', function ( event ) {
-
 				showEnterVR( event.display );
-
 			}, false );
 
 			window.addEventListener( 'vrdisplaydisconnect', function ( event ) {
-
 				showVRNotFound();
-
 			}, false );
 
 			window.addEventListener( 'vrdisplaypresentchange', function ( event ) {
-
 				button.textContent = event.display.isPresenting ? 'EXIT VR' : 'ENTER VR';
-
 			}, false );
 
 			window.addEventListener( 'vrdisplayactivate', function ( event ) {
@@ -183,41 +159,26 @@ var WEBVR = {
 
 			navigator.getVRDisplays()
 				.then( function ( displays ) {
-
 					if ( displays.length > 0 ) {
-
 						showEnterVR( displays[ 0 ] );
-
 					} else {
-
 						showVRNotFound();
-
 					}
-
 				} );
-
 			return button;
-
 		} else {
-
 			var message = document.createElement( 'a' );
 			message.href = 'https://webvr.info';
 			message.innerHTML = 'WEBVR NOT SUPPORTED';
-
 			message.style.left = 'calc(50% - 90px)';
 			message.style.width = '180px';
 			message.style.textDecoration = 'none';
-
 			stylizeElement( message );
-
 			return message;
-
 		}
-
 	},
 
 	// DEPRECATED
-
 	checkAvailability: function () {
 		console.warn( 'WEBVR.checkAvailability has been deprecated.' );
 		return new Promise( function () {} );
@@ -296,6 +257,7 @@ var WEBXR = {
 				} else {
 					currentSession.end();
 				}
+				return true;
 			};
 		}
 		function disableButton() {

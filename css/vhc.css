@@ -9,6 +9,16 @@ body {
 	font-family: 'Noto Sans JP', sans-serif;
 }
 
+#main_canvas {
+	width: 100vw;
+	height: 100vh;
+}
+
+#canvas {
+	width: 100%;
+	height: 100%;
+}
+
 #cover {
 	width: 100%;
 	height: 100%;
@@ -73,11 +83,14 @@ body {
 	left: 16px;
 }
 
-#chip {
+#tip {
 	position:fixed;
 	top: 0;
 	left: 0;
-	padding: 10px;
+	padding-top: 5px;
+	padding-bottom: 10px;
+	padding-left: 10px;
+	padding-right: 10px;
 	background-color: #345CAA;
 	border: solid 1px #FFFFFF;
 	z-index: 100;
@@ -85,6 +98,19 @@ body {
 	text-shadow: 1px 1px 1px rgba(0,0,0,0.3);
 	box-shadow: 2px 2px 2px rgba(0,0,0,0.7);
 	display: none;
+}
+
+#tip span, #tip img {
+	vertical-align: middle;
+}
+
+#tip img {
+	margin-left: 5px;
+	margin-top: 2px;
+}
+
+#tip img.icon-first {
+	margin-left: 10px;
 }
 
 #vr_mode {
@@ -95,6 +121,24 @@ body {
 	margin: 3px;
 	display: none;
 }
+
+.progressbar-base {
+	position: fixed;
+	z-index: 102;
+	top: 80vh;
+	left: 20vw;
+	width: 60vw;
+	height: 5px;
+	background-color: #727272;
+	transform-origin: top left;
+}
+
+#progressbar-front {
+	background-color: #FFFFFF;
+	transform: scaleX(0);
+	transition: all 0.1s;
+}
+
 
 @media screen and ( max-width: 798px ){
 	.logo-image, #copyright img {

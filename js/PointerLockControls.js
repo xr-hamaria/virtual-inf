@@ -31,13 +31,32 @@ THREE.PointerLockControls = function ( camera, domElement ) {
 	var PI_2 = Math.PI / 2;
 
 	var vec = new THREE.Vector3();
+	var touchVec = new THREE.Vector3();
     //var scope = window;
 	function onMouseMove( event ) {
+
+		if(scope.isLocked === false && !isDesktop()) {
+			const ts = event.changedTouches;
+			if(ts.length == 1) {
+				touchVec.x = ts[0].screenX;
+				touchVec.y = ts[0].screenY;
+			}
+		}
 
 		if ( scope.isLocked === false ) return;
 
 		var movementX = event.movementX || event.mozMovementX || event.webkitMovementX || 0;
 		var movementY = event.movementY || event.mozMovementY || event.webkitMovementY || 0;
+
+		if(!isDesktop()) {
+			const ts = event.changedTouches;
+			if(ts.length == 1) {
+				movementX = ts[0].screenX - touchVec.x;
+				movementY = ts[0].screenY - touchVec.y;
+				touchVec.x = ts[0].screenX;
+				touchVec.y = ts[0].screenY;
+			}
+		}
 
 		euler.setFromQuaternion( camera.quaternion );
 
@@ -53,66 +72,67 @@ THREE.PointerLockControls = function ( camera, domElement ) {
 	}
 
 	function onPointerlockChange() {
-
 		if ( scope.domElement.ownerDocument.pointerLockElement === scope.domElement ) {
-
 			scope.dispatchEvent( lockEvent );
-
 			scope.isLocked = true;
-
 		} else {
-
 			scope.dispatchEvent( unlockEvent );
-
 			scope.isLocked = false;
-
 		}
-
 	}
 
 	function onPointerlockError() {
-
 		console.error( 'THREE.PointerLockControls: Unable to use Pointer Lock API' );
+	}
 
+	function onTouchDown(event) {
+		const ts = event.changedTouches;
+		if(ts.length == 1) {
+			touchVec.x = ts[0].screenX;
+			touchVec.y = ts[0].screenY;
+		}
+	}
+
+	function isDesktop() {
+		const ua = navigator.userAgent;
+		return !(ua.indexOf('iPhone') > 0 || ua.indexOf('iPod') > 0 || ua.indexOf('Android') > 0 && ua.indexOf('Mobile') > 0 || ua.indexOf('iPad') > 0 || ua.indexOf('Android') > 0);
 	}
 
 	this.connect = function () {
-		scope.domElement.ownerDocument.addEventListener( 'mousemove', onMouseMove, false );
-		scope.domElement.ownerDocument.addEventListener( 'pointerlockchange', onPointerlockChange, false );
-		scope.domElement.ownerDocument.addEventListener( 'pointerlockerror', onPointerlockError, false );
-
+		if(isDesktop()) {
+			scope.domElement.ownerDocument.addEventListener( 'mousemove', onMouseMove, false );
+			scope.domElement.ownerDocument.addEventListener( 'pointerlockchange', onPointerlockChange, false );
+			scope.domElement.ownerDocument.addEventListener( 'pointerlockerror', onPointerlockError, false );
+		} else {
+			scope.domElement.addEventListener( 'touchmove', onMouseMove, false );
+			scope.domElement.addEventListener( 'touchstart', onTouchDown, false );
+		}
 	};
 
 	this.disconnect = function () {
-
-		scope.domElement.ownerDocument.removeEventListener( 'mousemove', onMouseMove, false );
-		scope.domElement.ownerDocument.removeEventListener( 'pointerlockchange', onPointerlockChange, false );
-		scope.domElement.ownerDocument.removeEventListener( 'pointerlockerror', onPointerlockError, false );
-
+		if(isDesktop()) {
+			scope.domElement.ownerDocument.removeEventListener( 'mousemove', onMouseMove, false );
+			scope.domElement.ownerDocument.removeEventListener( 'pointerlockchange', onPointerlockChange, false );
+			scope.domElement.ownerDocument.removeEventListener( 'pointerlockerror', onPointerlockError, false );
+		} else {
+			scope.domElement.removeEventListener( 'touchstart', onTouchDown, false );
+			scope.domElement.removeEventListener( 'touchmove', onMouseMove, false );
+		}
 	};
 
 	this.dispose = function () {
-
 		this.disconnect();
-
 	};
 
 	this.getObject = function () { // retaining this method for backward compatibility
-
 		return camera;
-
 	};
 
 	this.getDirection = function () {
-
 		var direction = new THREE.Vector3( 0, 0, - 1 );
-
 		return function ( v ) {
-
 			return v.copy( direction ).applyQuaternion( camera.quaternion );
-
 		};
-
 	}();
 
 	this.moveForward = function ( distance ) {
@@ -121,32 +141,34 @@ THREE.PointerLockControls = function ( camera, domElement ) {
 		// assumes camera.up is y-up
 
 		vec.setFromMatrixColumn( camera.matrix, 0 );
-
 		vec.crossVectors( camera.up, vec );
-
 		camera.position.addScaledVector( vec, distance );
-
 	};
 
 	this.moveRight = function ( distance ) {
-
 		vec.setFromMatrixColumn( camera.matrix, 0 );
-
 		camera.position.addScaledVector( vec, distance );
-
 	};
 
 	this.lock = function () {
-
-		this.domElement.requestPointerLock();
-
+		if(isDesktop()) {
+			this.domElement.requestPointerLock();
+		} else {
+			scope.dispatchEvent( lockEvent );
+			scope.isLocked = true;
+		}
 	};
 
 	this.unlock = function () {
-
-		scope.domElement.ownerDocument.exitPointerLock();
-
+		if(isDesktop()) {
+			scope.domElement.ownerDocument.exitPointerLock();
+		} else {
+			scope.dispatchEvent( unlockEvent );
+			scope.isLocked = false;
+		}
 	};
+
+	this.desktopMode = isDesktop();
 
 	this.connect();
 
