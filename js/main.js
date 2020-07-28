@@ -21,6 +21,7 @@ var walkthrough = null;
 var prevTime, curTime;
 var player = {
 	speed: 7.0,
+	eyeHeight: 1.4,
 	controller: null,
 	inputs: [false, false, false, false],
 	birdMatrix : null,
@@ -86,8 +87,7 @@ $(window).on('touchmove.noScroll', function(e) {
 function tapHandler(dom, callback) {
 	let clickPos = {x:0,y:0};
 	let cancel = false;
-	const anchors = document.querySelectorAll('a');
-	dom.addEventListener('mousedown', (evt) => {
+	dom.addEventListener('mousedown', evt => {
 		clickPos = {x:evt.screenX, y:evt.screenY};
 		cancel = false;
 	}, false);
@@ -108,7 +108,7 @@ function tapHandler(dom, callback) {
 	
 	// for iOS
 	function preventScroll(evt) {
-		if(event.touches.length >= 2) {
+		if(evt.touches.length >= 2) {
 			evt.preventDefault();
 		}
 	}
@@ -121,7 +121,7 @@ tapHandler(window, () => {
 	if(chip == 0)
 		return;
 	$("#dialog_title").text(chip_tx);
-	$("#cover").css("display", "block").css("opacity",0.3);;
+	$("#cover").css("display", "block").css("opacity",0.3);
 	domDialog.show(500);
 	if(toolChips[chip_id] && toolChips[chip_id].impl) {
 		$("#dialog_main").load(`contents/${toolChips[chip_id].id}.html`);
@@ -178,7 +178,7 @@ function init() {
 	walkthrough = new THREE.PointerLockControls(camera, document.getElementById('canvas') );
 	walkthrough.addEventListener('lock', () => {
 		player.birdPos = new THREE.Vector3(camera.position.x, camera.position.y, camera.position.z);
-		camera.position.set(116, 1.4, -50);
+		camera.position.set(116, player.eyeHeight, -50);
 		if(!walkthrough.desktopMode) {
 			VirtualPad.show();
 		}
@@ -202,11 +202,13 @@ function init() {
 	}
 	window.addEventListener('enter_vr', () => {
 		if(camera != vrCamera)
-			vrCamera.position.set(116, 1.4, -50);
+			vrCamera.position.set(116, player.eyeHeight, -50);
 	});
 	window.addEventListener('exit_vr', () => {
 		vrCamera.position.set(0, 0, 0);
 	});
+	const domProgressBar = $("#progressbar-front");
+
 	// 全体モデル
 	var model = null;
 	loader.load(
@@ -214,19 +216,6 @@ function init() {
 		function (gltf) {
 			model = gltf.scene;
 			scene.add(gltf.scene);
-			for(let child of gltf.scene.children) {
-				if(child.material && child.name == "floor_asphalt") {
-					child.material.polygonOffset = true;
-					child.material.polygonOffsetFactor = 1;
-					child.material.polygonOffsetUnits = 10;
-				}
-				if(child.material && child.name == "floor_brick") {
-					child.material.polygonOffset = true;
-					child.material.polygonOffsetFactor = 1;
-					child.material.polygonOffsetUnits = -1;
-				}
-			}
-
 			let targets = [...gltf.scene.children];
 			while(targets.length > 0) {
 				let child = targets.pop();
@@ -238,21 +227,39 @@ function init() {
 					while(parent.parent && parent.parent != model && (parent = parent.parent));
 					parentMap[child.name] = parent.name;
 				}
+
+				if(child.type == "Mesh" && child.material) {
+					child.material.side = THREE.FrontSide;
+				}
+
+				if(child.material && child.name == "floor_asphalt") {
+					child.material.polygonOffset = true;
+					child.material.polygonOffsetFactor = 1;
+					child.material.polygonOffsetUnits = 10;
+				}
+				if(child.material && child.name == "floor_brick") {
+					child.material.polygonOffset = true;
+					child.material.polygonOffsetFactor = 1;
+					child.material.polygonOffsetUnits = -1;
+				}
 			}
+			domProgressBar.css('transform', `scaleX(1)`);
 			$("#cover").css("opacity",0);
 			$("#cover_loading").hide();
+			domProgressBar.hide();
+			$("#progressbar").hide();
 		},
 		function (error) {
-			console.log(error);
+			const p = error.loaded/(error.total+1);
+			domProgressBar.css('transform', `scaleX(${p})`);
 		}
 	);
-	
 	renderer.gammaOutput = true;
 	renderer.gammaFactor = 2.2;
 
 	scene.add(new THREE.AmbientLight(0xFFFFFF, 1));
 	const sun = new THREE.DirectionalLight(0xFFFFFF, 1);
-	sun.position.set(1, 1, 1);
+	sun.position.set(1, 50, 1);
 	scene.add(sun);
 
 	camera.position.set(329.9886609379634,240.83169594230232,-35.899973772662483);
@@ -296,17 +303,27 @@ function init() {
 		return walkthrough.isLocked || renderer.xr.isPresenting;
 	}
 
+	function canMoveOn(cam, vec, scale) {
+		let vv = vec.clone();
+		vv.applyQuaternion( camera.quaternion );
+		vv.y = 0;
+		vv.normalize();
+		const caster = new THREE.Raycaster(cam.position, vv, 0.01, scale+0.1);
+		const intersects = caster.intersectObjects( scene.children, true);
+		return intersects.length <= 0;
+	}
+
 	function tickMove() {
 		const delta = (curTime - prevTime) / 1000.0;
 		if(renderer.xr.isPresenting && player.controller) {
 			let vec = new THREE.Vector3();
 			vec.setFromMatrixColumn( camera.matrixWorld, 0 );
 			vec.y = 0;
+			//vec.normalize();
+			let vec2 = vec.clone();
 			vec.crossVectors( camera.up, vec);
 			vrCamera.position.addScaledVector( vec, player.getHorizontal(player.controller) * player.speed * delta );
-			vec.setFromMatrixColumn( camera.matrixWorld, 0 );
-			vec.y = 0;
-			vrCamera.position.addScaledVector( vec, player.getVertical(player.controller) * player.speed * delta);
+			vrCamera.position.addScaledVector( vec2, player.getVertical(player.controller) * player.speed * delta);
 			return;
 		}
 
@@ -353,9 +370,10 @@ function init() {
 		// フェード処理
 		if (fade == 0 && domCover.css("opacity") <= 0) {
 			domCover.css("display", "none");
-			fade = 1;
-			if(VRButton.enableVR())
+			if(VRButton.enableVR() && !document.getElementById('VRButton')) {
 				document.body.appendChild(VRButton.createButton(renderer));
+			}
+			fade = 1;
 		}
 		
 		// ツールチップ処理
@@ -385,11 +403,11 @@ window.addEventListener('mousemove', function (ev){
 	if(!(scene && controls) || (walkthrough && walkthrough.isLocked))
 		return;
 	var hit = false;
-	
+	let size = new THREE.Vector2();
 	// 画面上のマウスクリック位置
 	var x = event.clientX;
 	var y = event.clientY;
-	const size = renderer.getSize();
+	renderer.getSize(size);
 	// マウスクリック位置を正規化
 	var mouse = new THREE.Vector2();
 	mouse.x =  ( x / size.x ) * 2 - 1;
