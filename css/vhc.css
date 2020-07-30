@@ -1,17 +1,17 @@
 * {
 	margin: 0;
 	padding: 0;
+	user-select: none;
+	-webkit-touch-callout: none;
+	-webkit-user-select: none;
 }
 
 body {
 	overflow-x: hidden;
 	overflow-y: hidden;
 	font-family: 'Noto Sans JP', sans-serif;
-}
-
-#main_canvas {
-	width: 100vw;
-	height: 100vh;
+	background-color: #345CAA;
+	height: 100%;
 }
 
 #canvas {
@@ -41,6 +41,10 @@ body {
 	left: 50%;
 	transform: translateY(-50%) translateX(-50%);
 	-webkit-transform: translateY(-50%) translateX(-50%);
+}
+
+#cover_loading > img {
+	width: 50vw;
 }
 
 #dialog {
@@ -139,6 +143,13 @@ body {
 	transition: all 0.1s;
 }
 
+.logo-image {
+	width: 45vw;
+}
+
+#copyright img {
+	width: 20vw;
+}
 
 @media screen and ( max-width: 798px ){
 	.logo-image, #copyright img {

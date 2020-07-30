@@ -9,6 +9,7 @@ Developed by Shizuoka University xR Association "Hamaria"
 import { VRButton } from './WebVR.js';
 import { VirtualPad } from './virtualpad.js';
 
+const debugMode = false;
 var html = "";
 var renderer, scene, camera, controls;
 var tip = 0;
@@ -20,6 +21,7 @@ var fade = 0;
 var walkthrough = null;
 var prevTime, curTime;
 var player = {
+	hasController: false,
 	speed: 7.0,
 	eyeHeight: 1.4,
 	controller: null,
@@ -170,14 +172,18 @@ function init() {
 		vrCamera.add(camera);
 		scene.add(vrCamera);
 	}
-
-	window.addEventListener('resize', () => {
-		width = window.innerWidth;
-		height = window.innerHeight;
-		renderer.setSize(width, height);
-		camera.aspect = window.innerWidth / window.innerHeight;
-		camera.updateProjectionMatrix();
-	}, false);
+	function resizeCanvas() {
+		const t = (navigator.userAgent.includes('iPad') || navigator.userAgent.includes('iPhone'))? 350 : 0;
+		setTimeout(() => {
+			width = window.innerWidth;
+			height = window.innerHeight;
+			renderer.setSize(width, height);
+			camera.aspect = width / height;
+			camera.updateProjectionMatrix();
+		}, t);
+	}
+	resizeCanvas();
+	window.addEventListener('resize', resizeCanvas, false);
 	
 	// 移動関連のコンポーネント初期化
 	walkthrough = new THREE.PointerLockControls(camera, document.getElementById('canvas') );
@@ -221,20 +227,44 @@ function init() {
 		function (gltf) {
 			model = gltf.scene;
 			scene.add(gltf.scene);
+			console.log(model);
 			let targets = [...gltf.scene.children];
+
+			let twigMaterial = null;
+			let palmateMaterial = null;
+			let i = 0;
 			while(targets.length > 0) {
+				i++;
 				let child = targets.pop();
 				for(let cc of child.children) {
 					targets.push(cc);
 				}
-				if(child.name) {
+				if(child.name && !child.name.includes('tree') && !child.name.includes('leaf')) {
 					let parent = child;
 					while(parent.parent && parent.parent != model && (parent = parent.parent));
 					parentMap[child.name] = parent.name;
 				}
 
+				if(child.type == "Mesh" && child.material && child.name.includes("tree")) {
+					if(child.material.name == "twig") {
+
+						if(twigMaterial == null)
+							twigMaterial = child.material;
+						else
+							child.material = twigMaterial;
+						child.visible = !debugMode;
+					} else if(child.material.name.includes("palmate")) {
+						if(palmateMaterial == null)
+							palmateMaterial = child.material;
+						else
+							child.material = palmateMaterial;
+						child.visible = !debugMode;
+					}
+				}
+
 				if(child.type == "Mesh" && child.material) {
 					child.material.side = THREE.FrontSide;
+					child.material.metalness = Math.min(0.8, child.material.metalness);
 				}
 
 				if(child.material && child.name == "floor_asphalt") {
@@ -248,6 +278,7 @@ function init() {
 					child.material.polygonOffsetUnits = -1;
 				}
 			}
+			
 			domProgressBar.css('transform', `scaleX(1)`);
 			$("#cover").css("opacity",0);
 			$("#cover_loading").hide();
@@ -255,29 +286,36 @@ function init() {
 			$("#progressbar").hide();
 		},
 		function (error) {
-			const p = error.loaded/(error.total+1);
+			if(!error || error.total == 0)
+				return;
+			const p = Math.min(1, error.loaded/(error.total+1));
 			domProgressBar.css('transform', `scaleX(${p})`);
 		}
 	);
 	renderer.gammaOutput = true;
 	renderer.gammaFactor = 2.2;
 
-	scene.add(new THREE.AmbientLight(0xFFFFFF, 1));
-	const sun = new THREE.DirectionalLight(0xFFFFFF, 1);
-	sun.position.set(1, 50, 1);
+	scene.add(new THREE.AmbientLight(0xFFFFFF, 0.6));
+	const sun = new THREE.DirectionalLight(0xFFFFFF, 2);
+	sun.position.set(0, 50, 50);
 	scene.add(sun);
 
 	camera.position.set(329.9886609379634,240.83169594230232,-35.899973772662483);
 	camera.rotation.set(-1.8099243120012465,0.7840724844004205,1.9031279561056308)
 	renderer.setAnimationLoop(tick);
 
-	const moveController = renderer.xr.getController(player.getControllerIndex());
-	moveController.addEventListener( 'connected', (evt) => {
-		player.controller = evt.data.gamepad;
-	});
-	moveController.addEventListener( 'disconnected', (evt) => {
+	try {
+		const moveController = renderer.xr.getController(player.getControllerIndex());
+		moveController.addEventListener( 'connected', (evt) => {
+			player.controller = evt.data.gamepad;
+		});
+		moveController.addEventListener( 'disconnected', (evt) => {
+			player.controller = null;
+		});
+		player.hasController = true;
+	} catch(err) {
 		player.controller = null;
-	});
+	}
 
 	// 移動用のキーボード処理
 	function keyCheck(evt, val) {
@@ -349,7 +387,6 @@ function init() {
 		
 	}
 
-
 	function tick() {
 		curTime = performance.now();
 		/*
@@ -357,9 +394,9 @@ function init() {
 			console.log(model);
 		}
 		*/
-
+		//sun.position.set(Math.cos((timer % 360) /360 * 3.141592 * 2) * 50, Math.sin((timer % 360) /360 * 3.141592 * 2) * 50, 1);
 		if(!isFirstPersonMode()) {
-			if(dialog == 0) {
+			if(dialog == 0 && model) {
 				controls.update();
 			}
 		} else {
@@ -371,13 +408,15 @@ function init() {
 		renderer.render(scene, camera);
 		
 		// デバッグ用情報の表示
-		html = "[Camera Parameter]<br>X Position："+camera.position.x+"<br>Y Position："+camera.position.y+"<br>Z Position："+camera.position.z+"<br>X Rotation："+camera.rotation.x+"<br>Y Rotation："+camera.rotation.y+"<br>Z Rotation："+camera.rotation.z+"<br>X Scale："+camera.scale.x+"<br>Y Scale："+camera.scale.y+"<br>Z Scale："+camera.scale.z;
-		domDebug.html(html);
+		if(debugMode) {
+			html = "[Camera Parameter]<br>X Position："+camera.position.x+"<br>Y Position："+camera.position.y+"<br>Z Position："+camera.position.z+"<br>X Rotation："+camera.rotation.x+"<br>Y Rotation："+camera.rotation.y+"<br>Z Rotation："+camera.rotation.z+"<br>X Scale："+camera.scale.x+"<br>Y Scale："+camera.scale.y+"<br>Z Scale："+camera.scale.z;
+			domDebug.html(html);
+		}
 		
 		// フェード処理
 		if (fade == 0 && domCover.css("opacity") <= 0) {
 			domCover.css("display", "none");
-			if(VRButton.enableVR() && !document.getElementById('VRButton')) {
+			if(VRButton.enableVR() && !document.getElementById('VRButton') && player.hasController) {
 				document.body.appendChild(VRButton.createButton(renderer));
 			}
 			fade = 1;
@@ -478,6 +517,7 @@ window.toggleDebugWindow = () => {
 
 // ダイアログを閉じる
 window.closeDialog = () => {
+	if(dialog == 0) return false;
 	dialog = 0;
 	$("#dialog").hide(500);
 	$("#cover").css("opacity",0);

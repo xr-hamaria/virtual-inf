@@ -20,7 +20,7 @@
 		<link rel="shortcut icon" type="image/x-icon" href="img/favicon.ico">
 	</head>
 	<body>
-		<div id="cover">
+		<div id="cover" onclick="closeDialog();">
 			<div id="cover_loading">
 				<img src="img/loading.png">
 			</div>
@@ -39,16 +39,14 @@
 			<div id="toolbar">
 				<a href="javascript:changeVRMode()"><img src="img/vrmode.png" class="menu-image"></a><br>
 				<a href="#"><img src="img/help.png" class="menu-image"></a><br>
-				<!--
-				<a href="javascript:toggleDebugWindow()"><img src="img/debug.png" class="menu-image"></a>
-				-->
+				<!--<a href="javascript:toggleDebugWindow()"><img src="img/debug.png" class="menu-image"></a>-->
 			</div>
 			<div id="debug">
 				<div id="debug_camera"></div>
 			</div>
 		</div>
 		<div id="main_canvas">
-			<canvas id="canvas"></canvas>
+			<canvas id="canvas" width="1px" height="1px"></canvas>
 		</div>
 		<div id="virtualpad" class="virtualpad">
 			<div class="virtualpad-back"></div>
