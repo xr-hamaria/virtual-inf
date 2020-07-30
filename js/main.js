@@ -358,7 +358,7 @@ function init() {
 
 	function tickMove() {
 		const delta = (curTime - prevTime) / 1000.0;
-		if(renderer.xr.isPresenting && player.controller) {
+		if(renderer.xr.isPresenting && player.hasController && player.controller) {
 			let vec = new THREE.Vector3();
 			vec.setFromMatrixColumn( camera.matrixWorld, 0 );
 			vec.y = 0;
@@ -416,7 +416,7 @@ function init() {
 		// フェード処理
 		if (fade == 0 && domCover.css("opacity") <= 0) {
 			domCover.css("display", "none");
-			if(VRButton.enableVR() && !document.getElementById('VRButton') && player.hasController) {
+			if(VRButton.enableVR() && !document.getElementById('VRButton')) {
 				document.body.appendChild(VRButton.createButton(renderer));
 			}
 			fade = 1;
