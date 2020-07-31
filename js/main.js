@@ -141,7 +141,7 @@ function init() {
 	// レンダラーを作成
 	renderer = new THREE.WebGLRenderer({
 		canvas: document.getElementById('canvas'),
-		antialias: true
+		antialias: true,
 	});
 	var width = window.innerWidth;
 	var height = window.innerHeight;
