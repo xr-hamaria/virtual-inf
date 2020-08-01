@@ -20,6 +20,8 @@ var dy = 0;
 var fade = 0;
 var walkthrough = null;
 var prevTime, curTime;
+var model, skyDome, shizuppi;
+var toolTipRaycaster = new THREE.Raycaster();
 var player = {
 	hasController: false,
 	speed: 7.0,
@@ -32,13 +34,17 @@ var player = {
 		return 0;
 	},
 	getHorizontal : function(pad) {	// must return -1.0 ~ 1.0
-		return -pad.axes[3];
+		return pad && pad.axes ? -pad.axes[3] : 0;
 	},
 	getVertical : function(pad) {	// must return -1.0 ~ 1.0
-		return pad.axes[2];
+		return pad && pad.axes ? pad.axes[2] : 0;
 	}
 };
-
+var settings = {
+	enableFog: false,
+	enableShadow: false,
+	cycleSun: false
+};
 const domtip = $("#tip");
 const domCover = $("#cover");
 const domDebug = $("#debug_camera");
@@ -153,6 +159,7 @@ function init() {
 	renderer.setClearColor(0x345CAA);
 	renderer.setPixelRatio(1);
 	renderer.setSize(width, height);
+	renderer.shadowMap.enabled = settings.enableShadow;
 	// VRボタンの有効をチェック後有効化
 	if(VRButton.enableVR()) {
 		renderer.xr.enabled = true;
@@ -160,12 +167,16 @@ function init() {
 
 	// シーンを作成
 	scene = new THREE.Scene();
+	if(settings.enableFog) {
+		scene.fog = new THREE.Fog(0xFFFFFF, 50, 1500);
+	}
 
 	// カメラを作成
 	camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 1000);
 	controls = new THREE.OrbitControls(camera);
 	controls.maxDistance = 600;
 	controls.noKeys = true;
+	controls.maxPolarAngle = Math.PI * 0.495;
 
 	const loader = new THREE.GLTFLoader();
 
@@ -194,6 +205,7 @@ function init() {
 	walkthrough.addEventListener('lock', () => {
 		player.birdPos = new THREE.Vector3(camera.position.x, camera.position.y, camera.position.z);
 		camera.position.set(116, player.eyeHeight, -50);
+		skyDome.visible = true;
 		if(!walkthrough.desktopMode) {
 			VirtualPad.show();
 		}
@@ -203,6 +215,7 @@ function init() {
 		camera.position.x = player.birdPos.x;
 		camera.position.y = player.birdPos.y;
 		camera.position.z = player.birdPos.z;
+		skyDome.visible = false;
 		$("#information").show(500);
 		$("#copyright").show(500);
 		$("#vr_mode").hide(500);
@@ -218,22 +231,23 @@ function init() {
 	window.addEventListener('enter_vr', () => {
 		if(camera != vrCamera)
 			vrCamera.position.set(116, player.eyeHeight, -50);
+		skyDome.visible = true;
+
 	});
 	window.addEventListener('exit_vr', () => {
 		vrCamera.position.set(0, 0, 0);
+		skyDome.visible = false;
 	});
 	const domProgressBar = $("#progressbar-front");
-
 	// 全体モデル
-	var model = null;
 	loader.load(
 		'model/campus.glb',
 		function (gltf) {
 			model = gltf.scene;
+			if(debugMode)
+				console.log(model);
 			let targets = [...gltf.scene.children];
 
-			let twigMaterial = null;
-			let palmateMaterial = null;
 			let i = 0;
 			while(targets.length > 0) {
 				i++;
@@ -246,38 +260,15 @@ function init() {
 					while(parent.parent && parent.parent != model && (parent = parent.parent));
 					parentMap[child.name] = parent.name;
 				}
-
-				if(child.type == "Mesh" && child.material && child.name.includes("tree")) {
-					if(child.material.name == "twig") {
-
-						if(twigMaterial == null)
-							twigMaterial = child.material;
-						else
-							child.material = twigMaterial;
-						child.visible = !debugMode;
-					} else if(child.material.name.includes("palmate")) {
-						if(palmateMaterial == null)
-							palmateMaterial = child.material;
-						else
-							child.material = palmateMaterial;
-						child.visible = !debugMode;
-					}
+				if(settings.enableShadow && child.type == "Mesh") {
+					let isFloor = parentMap[child.name] && parentMap[child.name].includes('floor');
+					child.receiveShadow = isFloor;
+					child.castShadow = !isFloor;
 				}
 
 				if(child.type == "Mesh" && child.material) {
 					child.material.side = THREE.FrontSide;
 					child.material.metalness = Math.min(0.8, child.material.metalness);
-				}
-
-				if(child.material && child.name == "floor_asphalt") {
-					child.material.polygonOffset = true;
-					child.material.polygonOffsetFactor = 1;
-					child.material.polygonOffsetUnits = 10;
-				}
-				if(child.material && child.name == "floor_brick") {
-					child.material.polygonOffset = true;
-					child.material.polygonOffsetFactor = 1;
-					child.material.polygonOffsetUnits = -1;
 				}
 			}
 			scene.add(gltf.scene);
@@ -292,14 +283,43 @@ function init() {
 				return;
 			const p = Math.min(1, error.loaded/(error.total+1));
 			domProgressBar.css('transform', `scaleX(${p})`);
+		},
+		function(error) {
+			console.log(error);
 		}
 	);
-	renderer.outputEncoding = THREE.GammaEncoding;
+	new THREE.RGBELoader().load( 'img/vr_background.hdr', (skyTexture) => {
+		skyTexture.flipY = false;
+		const sky = new THREE.Mesh( new THREE.SphereGeometry( 700, 32, 16 ), new THREE.MeshBasicMaterial( { map: skyTexture } ) );
+		sky.material.side = THREE.BackSide;
+		sky.scale.x = -1;
+		sky.scale.y = -1;
+		sky.rotation.y = Math.PI/2;
+		sky.visible = false;
+		skyDome = sky;
+		scene.add(sky);
+	});
+
+	/// todo: add shizuppi- loading here
+	/*
+	loader.load('model/shizuppi.gltf', (gltf) => {
+		shizuppi = gltf.scene; 
+		scene.add(shizuppi);
+	});
+	*/
+	renderer.outputEncoding = THREE.sRGBEncoding;
 	renderer.gammaFactor = 2.2;
 
 	scene.add(new THREE.AmbientLight(0xFFFFFF, 0.6));
 	const sun = new THREE.DirectionalLight(0xFFFFFF, 2);
-	sun.position.set(0, 50, 50);
+	if(settings.enableShadow) {
+		sun.castShadow = true;
+		sun.shadow.camera.right = 200;
+		sun.shadow.camera.left = -200;
+		sun.shadow.camera.top = -200;
+		sun.shadow.camera.bottom = 200;
+	}
+	sun.position.set(0, 200, 180);
 	scene.add(sun);
 
 	camera.position.set(329.9886609379634,240.83169594230232,-35.899973772662483);
@@ -309,7 +329,8 @@ function init() {
 	try {
 		const moveController = renderer.xr.getController(player.getControllerIndex());
 		moveController.addEventListener( 'connected', (evt) => {
-			player.controller = evt.data.gamepad;
+			if(evt && evt.data && evt.data.gamepad)
+				player.controller = evt.data.gamepad;
 		});
 		moveController.addEventListener( 'disconnected', (evt) => {
 			player.controller = null;
@@ -337,6 +358,8 @@ function init() {
 			case 39: // right
 			case 68: // d
 				player.inputs[3] = val;
+				break;
+			case 113:
 				break;
 		}
 	}
@@ -390,15 +413,14 @@ function init() {
 		}
 		
 	}
-
+	let timer = 0;
 	function tick() {
 		curTime = performance.now();
-		/*
-		if (model != null) {
-			console.log(model);
+		if(settings.cycleSun) {
+			timer++;
+			sun.position.set(Math.cos((timer % 360) / 360 * Math.PI * 2) * 200, Math.sin((timer % 360) / 360 * Math.PI * 2) * 200, sun.position.z);
 		}
-		*/
-		//sun.position.set(Math.cos((timer % 360) /360 * 3.141592 * 2) * 50, Math.sin((timer % 360) /360 * 3.141592 * 2) * 50, 1);
+
 		if(!isFirstPersonMode()) {
 			if(dialog == 0 && model) {
 				controls.update();
@@ -466,24 +488,22 @@ window.addEventListener('mousemove', function (ev){
 		tip = 0;
 		return;
 	}
-	var hit = false;
+	let hit = false;
 	let size = new THREE.Vector2();
 	// 画面上のマウスクリック位置
-	var x = event.clientX;
-	var y = event.clientY;
+	const x = event.clientX;
+	const y = event.clientY;
 	renderer.getSize(size);
 	// マウスクリック位置を正規化
-	var mouse = new THREE.Vector2();
+	let mouse = new THREE.Vector2();
 	mouse.x =  ( x / size.x ) * 2 - 1;
 	mouse.y = -( y / size.y ) * 2 + 1;
 	
-	// Raycasterインスタンス作成
-	var raycaster = new THREE.Raycaster();
 	// 取得したX、Y座標でrayの位置を更新
-	raycaster.setFromCamera( mouse, camera );
+	toolTipRaycaster.setFromCamera( mouse, camera );
 	// オブジェクトの取得
-	var intersects = raycaster.intersectObjects(scene.children, true);
-	for (var i = 0; i < intersects.length; i++) {
+	const intersects = toolTipRaycaster.intersectObjects(scene.children, true);
+	for (let i = 0; i < intersects.length; i++) {
 		const parent = parentMap[intersects[i].object.name];
 		if(parent && toolTip[parent]) {
 			domtip.css("left", x).css("top", y);
