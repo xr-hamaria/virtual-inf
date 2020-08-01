@@ -9,6 +9,7 @@ Developed by Shizuoka University xR Association "Hamaria"
 import { VRButton } from './WebVR.js';
 import { VirtualPad } from './virtualpad.js';
 
+const debugMode = false;
 var html = "";
 var renderer, scene, camera, controls;
 var tip = 0;
@@ -19,7 +20,10 @@ var dy = 0;
 var fade = 0;
 var walkthrough = null;
 var prevTime, curTime;
+var model, skyDome, shizuppi;
+var toolTipRaycaster = new THREE.Raycaster();
 var player = {
+	hasController: false,
 	speed: 7.0,
 	eyeHeight: 1.4,
 	controller: null,
@@ -30,18 +34,22 @@ var player = {
 		return 0;
 	},
 	getHorizontal : function(pad) {	// must return -1.0 ~ 1.0
-		return -pad.axes[3];
+		return pad && pad.axes ? -pad.axes[3] : 0;
 	},
 	getVertical : function(pad) {	// must return -1.0 ~ 1.0
-		return pad.axes[2];
+		return pad && pad.axes ? pad.axes[2] : 0;
 	}
 };
-
+var settings = {
+	enableFog: false,
+	enableShadow: false,
+	cycleSun: false
+};
 const domtip = $("#tip");
 const domCover = $("#cover");
 const domDebug = $("#debug_camera");
 const domDialog = $("#dialog");
-
+const domCanvas = document.getElementById('canvas');
 var parentMap = {};
 const TipBase = function(id, label, impl, doc, pic = false) {
 	this.id = id;
@@ -100,6 +108,9 @@ function tapHandler(dom, callback) {
 		cancel = false;
 	}, false);
 	function upHandler(evt) {
+		if(cancel)
+			return;
+		
 		const d = (evt.screenX - clickPos.x) * (evt.screenX - clickPos.x) + (evt.screenY - clickPos.y) * (evt.screenY - clickPos.y);
 		if(d <= 16) {
 			callback();
@@ -140,14 +151,15 @@ tapHandler(window, () => {
 function init() {
 	// レンダラーを作成
 	renderer = new THREE.WebGLRenderer({
-		canvas: document.getElementById('canvas'),
-		antialias: true,
+		canvas: domCanvas,
+		antialias: true
 	});
 	var width = window.innerWidth;
 	var height = window.innerHeight;
 	renderer.setClearColor(0x345CAA);
 	renderer.setPixelRatio(1);
 	renderer.setSize(width, height);
+	renderer.shadowMap.enabled = settings.enableShadow;
 	// VRボタンの有効をチェック後有効化
 	if(VRButton.enableVR()) {
 		renderer.xr.enabled = true;
@@ -155,11 +167,16 @@ function init() {
 
 	// シーンを作成
 	scene = new THREE.Scene();
+	if(settings.enableFog) {
+		scene.fog = new THREE.Fog(0xFFFFFF, 50, 1500);
+	}
 
 	// カメラを作成
 	camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 1000);
 	controls = new THREE.OrbitControls(camera);
 	controls.maxDistance = 600;
+	controls.noKeys = true;
+	controls.maxPolarAngle = Math.PI * 0.495;
 
 	const loader = new THREE.GLTFLoader();
 
@@ -170,20 +187,25 @@ function init() {
 		vrCamera.add(camera);
 		scene.add(vrCamera);
 	}
-
-	window.addEventListener('resize', () => {
-		width = window.innerWidth;
-		height = window.innerHeight;
-		renderer.setSize(width, height);
-		camera.aspect = window.innerWidth / window.innerHeight;
-		camera.updateProjectionMatrix();
-	}, false);
+	function resizeCanvas() {
+		const t = (navigator.userAgent.includes('iPad') || navigator.userAgent.includes('iPhone'))? 350 : 0;
+		setTimeout(() => {
+			width = window.innerWidth;
+			height = window.innerHeight;
+			renderer.setSize(width, height);
+			camera.aspect = width / height;
+			camera.updateProjectionMatrix();
+		}, t);
+	}
+	resizeCanvas();
+	window.addEventListener('resize', resizeCanvas, false);
 	
 	// 移動関連のコンポーネント初期化
 	walkthrough = new THREE.PointerLockControls(camera, document.getElementById('canvas') );
 	walkthrough.addEventListener('lock', () => {
 		player.birdPos = new THREE.Vector3(camera.position.x, camera.position.y, camera.position.z);
 		camera.position.set(116, player.eyeHeight, -50);
+		skyDome.visible = true;
 		if(!walkthrough.desktopMode) {
 			VirtualPad.show();
 		}
@@ -193,6 +215,7 @@ function init() {
 		camera.position.x = player.birdPos.x;
 		camera.position.y = player.birdPos.y;
 		camera.position.z = player.birdPos.z;
+		skyDome.visible = false;
 		$("#information").show(500);
 		$("#copyright").show(500);
 		$("#vr_mode").hide(500);
@@ -208,46 +231,47 @@ function init() {
 	window.addEventListener('enter_vr', () => {
 		if(camera != vrCamera)
 			vrCamera.position.set(116, player.eyeHeight, -50);
+		skyDome.visible = true;
+
 	});
 	window.addEventListener('exit_vr', () => {
 		vrCamera.position.set(0, 0, 0);
+		skyDome.visible = false;
 	});
 	const domProgressBar = $("#progressbar-front");
-
 	// 全体モデル
-	var model = null;
 	loader.load(
 		'model/campus.glb',
 		function (gltf) {
 			model = gltf.scene;
-			scene.add(gltf.scene);
+			if(debugMode)
+				console.log(model);
 			let targets = [...gltf.scene.children];
+
+			let i = 0;
 			while(targets.length > 0) {
+				i++;
 				let child = targets.pop();
 				for(let cc of child.children) {
 					targets.push(cc);
 				}
-				if(child.name) {
+				if(child.name && !child.name.includes('tree') && !child.name.includes('leaf')) {
 					let parent = child;
 					while(parent.parent && parent.parent != model && (parent = parent.parent));
 					parentMap[child.name] = parent.name;
 				}
+				if(settings.enableShadow && child.type == "Mesh") {
+					let isFloor = parentMap[child.name] && parentMap[child.name].includes('floor');
+					child.receiveShadow = isFloor;
+					child.castShadow = !isFloor;
+				}
 
 				if(child.type == "Mesh" && child.material) {
 					child.material.side = THREE.FrontSide;
-				}
-
-				if(child.material && child.name == "floor_asphalt") {
-					child.material.polygonOffset = true;
-					child.material.polygonOffsetFactor = 1;
-					child.material.polygonOffsetUnits = 10;
-				}
-				if(child.material && child.name == "floor_brick") {
-					child.material.polygonOffset = true;
-					child.material.polygonOffsetFactor = 1;
-					child.material.polygonOffsetUnits = -1;
+					child.material.metalness = Math.min(0.8, child.material.metalness);
 				}
 			}
+			scene.add(gltf.scene);
 			domProgressBar.css('transform', `scaleX(1)`);
 			$("#cover").css("opacity",0);
 			$("#cover_loading").hide();
@@ -255,29 +279,66 @@ function init() {
 			$("#progressbar").hide();
 		},
 		function (error) {
-			const p = error.loaded/(error.total+1);
+			if(!error || error.total == 0)
+				return;
+			const p = Math.min(1, error.loaded/(error.total+1));
 			domProgressBar.css('transform', `scaleX(${p})`);
+		},
+		function(error) {
+			console.log(error);
 		}
 	);
-	renderer.gammaOutput = true;
+	new THREE.RGBELoader().load( 'img/vr_background.hdr', (skyTexture) => {
+		skyTexture.flipY = false;
+		const sky = new THREE.Mesh( new THREE.SphereGeometry( 700, 32, 16 ), new THREE.MeshBasicMaterial( { map: skyTexture } ) );
+		sky.material.side = THREE.BackSide;
+		sky.scale.x = -1;
+		sky.scale.y = -1;
+		sky.rotation.y = Math.PI/2;
+		sky.visible = false;
+		skyDome = sky;
+		scene.add(sky);
+	});
+
+	/// todo: add shizuppi- loading here
+	/*
+	loader.load('model/shizuppi.gltf', (gltf) => {
+		shizuppi = gltf.scene; 
+		scene.add(shizuppi);
+	});
+	*/
+	renderer.outputEncoding = THREE.sRGBEncoding;
 	renderer.gammaFactor = 2.2;
 
-	scene.add(new THREE.AmbientLight(0xFFFFFF, 1));
-	const sun = new THREE.DirectionalLight(0xFFFFFF, 1);
-	sun.position.set(1, 50, 1);
+	scene.add(new THREE.AmbientLight(0xFFFFFF, 0.6));
+	const sun = new THREE.DirectionalLight(0xFFFFFF, 2);
+	if(settings.enableShadow) {
+		sun.castShadow = true;
+		sun.shadow.camera.right = 200;
+		sun.shadow.camera.left = -200;
+		sun.shadow.camera.top = -200;
+		sun.shadow.camera.bottom = 200;
+	}
+	sun.position.set(0, 200, 180);
 	scene.add(sun);
 
 	camera.position.set(329.9886609379634,240.83169594230232,-35.899973772662483);
 	camera.rotation.set(-1.8099243120012465,0.7840724844004205,1.9031279561056308)
 	renderer.setAnimationLoop(tick);
 
-	const moveController = renderer.xr.getController(player.getControllerIndex());
-	moveController.addEventListener( 'connected', (evt) => {
-		player.controller = evt.data.gamepad;
-	});
-	moveController.addEventListener( 'disconnected', (evt) => {
+	try {
+		const moveController = renderer.xr.getController(player.getControllerIndex());
+		moveController.addEventListener( 'connected', (evt) => {
+			if(evt && evt.data && evt.data.gamepad)
+				player.controller = evt.data.gamepad;
+		});
+		moveController.addEventListener( 'disconnected', (evt) => {
+			player.controller = null;
+		});
+		player.hasController = true;
+	} catch(err) {
 		player.controller = null;
-	});
+	}
 
 	// 移動用のキーボード処理
 	function keyCheck(evt, val) {
@@ -298,6 +359,8 @@ function init() {
 			case 68: // d
 				player.inputs[3] = val;
 				break;
+			case 113:
+				break;
 		}
 	}
 
@@ -312,15 +375,17 @@ function init() {
 		let vv = vec.clone();
 		vv.applyQuaternion( camera.quaternion );
 		vv.y = 0;
-		vv.normalize();
+		//vv.normalize();
 		const caster = new THREE.Raycaster(cam.position, vv, 0.01, scale+0.1);
+		const caster2 = new THREE.Raycaster(new THREE.Vector3(cam.position.x, cam.position.y-0.8, cam.position.z), vv, 0.01, scale+0.1);
 		const intersects = caster.intersectObjects( scene.children, true);
-		return intersects.length <= 0;
+		const intersects2 = caster.intersectObjects( scene.children, true);
+		return intersects.length <= 0 && intersects2.length <= 0;
 	}
 
 	function tickMove() {
 		const delta = (curTime - prevTime) / 1000.0;
-		if(renderer.xr.isPresenting && player.controller) {
+		if(renderer.xr.isPresenting && player.hasController && player.controller) {
 			let vec = new THREE.Vector3();
 			vec.setFromMatrixColumn( camera.matrixWorld, 0 );
 			vec.y = 0;
@@ -348,18 +413,16 @@ function init() {
 		}
 		
 	}
-
-
+	let timer = 0;
 	function tick() {
 		curTime = performance.now();
-		/*
-		if (model != null) {
-			console.log(model);
+		if(settings.cycleSun) {
+			timer++;
+			sun.position.set(Math.cos((timer % 360) / 360 * Math.PI * 2) * 200, Math.sin((timer % 360) / 360 * Math.PI * 2) * 200, sun.position.z);
 		}
-		*/
 
 		if(!isFirstPersonMode()) {
-			if(dialog == 0) {
+			if(dialog == 0 && model) {
 				controls.update();
 			}
 		} else {
@@ -371,8 +434,10 @@ function init() {
 		renderer.render(scene, camera);
 		
 		// デバッグ用情報の表示
-		html = "[Camera Parameter]<br>X Position："+camera.position.x+"<br>Y Position："+camera.position.y+"<br>Z Position："+camera.position.z+"<br>X Rotation："+camera.rotation.x+"<br>Y Rotation："+camera.rotation.y+"<br>Z Rotation："+camera.rotation.z+"<br>X Scale："+camera.scale.x+"<br>Y Scale："+camera.scale.y+"<br>Z Scale："+camera.scale.z;
-		domDebug.html(html);
+		if(debugMode) {
+			html = "[Camera Parameter]<br>X Position："+camera.position.x+"<br>Y Position："+camera.position.y+"<br>Z Position："+camera.position.z+"<br>X Rotation："+camera.rotation.x+"<br>Y Rotation："+camera.rotation.y+"<br>Z Rotation："+camera.rotation.z+"<br>X Scale："+camera.scale.x+"<br>Y Scale："+camera.scale.y+"<br>Z Scale："+camera.scale.z;
+			domDebug.html(html);
+		}
 		
 		// フェード処理
 		if (fade == 0 && domCover.css("opacity") <= 0) {
@@ -418,24 +483,27 @@ function init() {
 window.addEventListener('mousemove', function (ev){
 	if(!(scene && controls) || (walkthrough && walkthrough.isLocked))
 		return;
-	var hit = false;
+
+	if(ev.target && ev.target.nodeName == "IMG") {
+		tip = 0;
+		return;
+	}
+	let hit = false;
 	let size = new THREE.Vector2();
 	// 画面上のマウスクリック位置
-	var x = event.clientX;
-	var y = event.clientY;
+	const x = event.clientX;
+	const y = event.clientY;
 	renderer.getSize(size);
 	// マウスクリック位置を正規化
-	var mouse = new THREE.Vector2();
+	let mouse = new THREE.Vector2();
 	mouse.x =  ( x / size.x ) * 2 - 1;
 	mouse.y = -( y / size.y ) * 2 + 1;
 	
-	// Raycasterインスタンス作成
-	var raycaster = new THREE.Raycaster();
 	// 取得したX、Y座標でrayの位置を更新
-	raycaster.setFromCamera( mouse, camera );
+	toolTipRaycaster.setFromCamera( mouse, camera );
 	// オブジェクトの取得
-	var intersects = raycaster.intersectObjects(scene.children, true);
-	for (var i = 0; i < intersects.length; i++) {
+	const intersects = toolTipRaycaster.intersectObjects(scene.children, true);
+	for (let i = 0; i < intersects.length; i++) {
 		const parent = parentMap[intersects[i].object.name];
 		if(parent && toolTip[parent]) {
 			domtip.css("left", x).css("top", y);
@@ -487,6 +555,7 @@ window.toggleDebugWindow = () => {
 
 // ダイアログを閉じる
 window.closeDialog = () => {
+	if(dialog == 0) return false;
 	dialog = 0;
 	$("#dialog").hide(500);
 	$("#cover").css("opacity",0);

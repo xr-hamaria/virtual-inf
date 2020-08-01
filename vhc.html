@@ -8,6 +8,7 @@
 		<script src="js/jquery.js"></script>
 		<script src="js/three.min.js"></script>
 		<script src="js/GLTFLoader.js"></script>
+		<script src="js/RGBELoader.js"></script>
 		<script src="js/OrbitControls.js"></script>
 		<script src="js/PointerLockControls.js"></script>
 		<script src="js/main.js" type="module" ></script>
@@ -20,7 +21,7 @@
 		<link rel="shortcut icon" type="image/x-icon" href="img/favicon.ico">
 	</head>
 	<body>
-		<div id="cover">
+		<div id="cover" onclick="closeDialog();">
 			<div id="cover_loading">
 				<img src="img/loading.png">
 			</div>
@@ -48,7 +49,7 @@
 			</div>
 		</div>
 		<div id="main_canvas">
-			<canvas id="canvas"></canvas>
+			<canvas id="canvas" width="1px" height="1px"></canvas>
 		</div>
 		<div id="virtualpad" class="virtualpad">
 			<div class="virtualpad-back"></div>

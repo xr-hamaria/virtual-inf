@@ -94,8 +94,8 @@ THREE.PointerLockControls = function ( camera, domElement ) {
 	}
 
 	function isDesktop() {
-		const ua = navigator.userAgent;
-		return !(ua.indexOf('iPhone') > 0 || ua.indexOf('iPod') > 0 || ua.indexOf('Android') > 0 && ua.indexOf('Mobile') > 0 || ua.indexOf('iPad') > 0 || ua.indexOf('Android') > 0);
+		const ua = navigator.userAgent.toLowerCase();
+		return !((('ontouchend' in document) && ua.indexOf('macintosh') > 0) || ua.indexOf('iphone') > 0 || ua.indexOf('ipod') > 0 || ua.indexOf('ipad') > 0 || ua.indexOf('android') > 0 && ua.indexOf('mobile') > 0 || ua.indexOf('android') > 0);
 	}
 
 	this.connect = function () {
@@ -157,6 +157,9 @@ THREE.PointerLockControls = function ( camera, domElement ) {
 			scope.dispatchEvent( lockEvent );
 			scope.isLocked = true;
 		}
+		euler.x = 0;
+		euler.y = Math.PI / 2;
+		camera.quaternion.setFromEuler( euler );
 	};
 
 	this.unlock = function () {
