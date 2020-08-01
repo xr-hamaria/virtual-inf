@@ -43,7 +43,7 @@ const domtip = $("#tip");
 const domCover = $("#cover");
 const domDebug = $("#debug_camera");
 const domDialog = $("#dialog");
-
+const domCanvas = document.getElementById('canvas');
 var parentMap = {};
 const TipBase = function(id, label, impl, doc, pic = false) {
 	this.id = id;
@@ -102,6 +102,9 @@ function tapHandler(dom, callback) {
 		cancel = false;
 	}, false);
 	function upHandler(evt) {
+		if(cancel)
+			return;
+		
 		const d = (evt.screenX - clickPos.x) * (evt.screenX - clickPos.x) + (evt.screenY - clickPos.y) * (evt.screenY - clickPos.y);
 		if(d <= 16) {
 			callback();
@@ -142,7 +145,7 @@ tapHandler(window, () => {
 function init() {
 	// レンダラーを作成
 	renderer = new THREE.WebGLRenderer({
-		canvas: document.getElementById('canvas'),
+		canvas: domCanvas,
 		antialias: true
 	});
 	var width = window.innerWidth;
@@ -162,6 +165,7 @@ function init() {
 	camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 1000);
 	controls = new THREE.OrbitControls(camera);
 	controls.maxDistance = 600;
+	controls.noKeys = true;
 
 	const loader = new THREE.GLTFLoader();
 
@@ -226,8 +230,6 @@ function init() {
 		'model/campus.glb',
 		function (gltf) {
 			model = gltf.scene;
-			scene.add(gltf.scene);
-			console.log(model);
 			let targets = [...gltf.scene.children];
 
 			let twigMaterial = null;
@@ -278,7 +280,7 @@ function init() {
 					child.material.polygonOffsetUnits = -1;
 				}
 			}
-			
+			scene.add(gltf.scene);
 			domProgressBar.css('transform', `scaleX(1)`);
 			$("#cover").css("opacity",0);
 			$("#cover_loading").hide();
@@ -292,7 +294,7 @@ function init() {
 			domProgressBar.css('transform', `scaleX(${p})`);
 		}
 	);
-	renderer.gammaOutput = true;
+	renderer.outputEncoding = THREE.GammaEncoding;
 	renderer.gammaFactor = 2.2;
 
 	scene.add(new THREE.AmbientLight(0xFFFFFF, 0.6));
@@ -350,10 +352,12 @@ function init() {
 		let vv = vec.clone();
 		vv.applyQuaternion( camera.quaternion );
 		vv.y = 0;
-		vv.normalize();
+		//vv.normalize();
 		const caster = new THREE.Raycaster(cam.position, vv, 0.01, scale+0.1);
+		const caster2 = new THREE.Raycaster(new THREE.Vector3(cam.position.x, cam.position.y-0.8, cam.position.z), vv, 0.01, scale+0.1);
 		const intersects = caster.intersectObjects( scene.children, true);
-		return intersects.length <= 0;
+		const intersects2 = caster.intersectObjects( scene.children, true);
+		return intersects.length <= 0 && intersects2.length <= 0;
 	}
 
 	function tickMove() {
@@ -457,6 +461,11 @@ function init() {
 window.addEventListener('mousemove', function (ev){
 	if(!(scene && controls) || (walkthrough && walkthrough.isLocked))
 		return;
+
+	if(ev.target && ev.target.nodeName == "IMG") {
+		tip = 0;
+		return;
+	}
 	var hit = false;
 	let size = new THREE.Vector2();
 	// 画面上のマウスクリック位置
