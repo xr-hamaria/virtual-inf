@@ -1,6 +1,6 @@
 /*
 静岡大学 バーチャル情報学部
-Prototype / Rev.16
+Prototype / Rev.17
 
 (c)2020 Shizuoka University all rights reserved.
 Developed by Shizuoka University xR Association "Hamaria"
@@ -538,6 +538,15 @@ window.closeVRMode = () => {
 	$("#vr_mode").hide(500);
 	$("#VRButton").show(500);
 };
+
+window.openHelp = () => {
+	$("#dialog_title").text("操作説明");
+	$("#cover").css("display", "block").css("opacity",0.3);
+	domDialog.show(500);
+	$("#dialog_main").load("contents/help.html");
+	fade = 0;
+	dialog = 1;
+}
 
 // デバッグウインドウ
 window.toggleDebugWindow = () => {

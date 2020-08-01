@@ -46,9 +46,21 @@
 	opacity: 0.7;
 }
 
-#dialog_main img.dialog_photo {
+.dialog_photo {
 	width: 20%;
 	padding-right: 14px;
 	padding-bottom: 9px;
 	box-sizing: border-box;
+}
+
+.dialog_video {
+	width: 50%;
+	padding-right: 14px;
+	padding-bottom: 9px;
+	box-sizing: border-box;
+}
+
+.dialog_help th {
+	width: 150px;
+	text-align: left;
 }
