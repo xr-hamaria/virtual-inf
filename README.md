@@ -25,13 +25,13 @@ PCの場合はWASDキー/矢印キーで、スマホやタブレットの場合�
 This project is licensed under the MIT License - see the LICENSE file for details.  
 Please check [here](http://reiki.adb.shizuoka.ac.jp/act/frame/frame110000075.htm) for more information on the use of the academic emblem data.
 
-# Contact
+## Contact
 
 TwitterのDMあるいはE-Mailにてご連絡ください。  
 Twitter: [@xR_Hamamatsu](https://twitter.com/xR_Hamamatsu)  
 E-mail: xr.hamamatsu(@)gmail.com
 
-# Author
+## Author
 
 静大xR同好会はまりあ
 
