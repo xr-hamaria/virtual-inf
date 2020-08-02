@@ -1,42 +1,39 @@
 # virtual-inf
-Faculty of Informatics, Shizuoka University (Virtual Edition)
+Faculty of Informatics, Shizuoka University (Virtual Edition)  
+静岡大学浜松キャンパスをバーチャルリアリティで楽しむことができます。  
+[静岡大学情報学部ONLINE OPEN CAMPUS 2020](https://www.inf.shizuoka.ac.jp/opencampus2020/index.html)のコンテンツとして公開していますが、オープンキャンパス終了後も継続して開発および公開を予定しています。
 
 ## Getting Started
 
-8月以降、 https://xr-hamaria.github.io/virtual-inf にて公開を予定しています。
+https://xr-hamaria.github.io/virtual-inf にて公開しています。
 
-### ローカルテストサーバで実行する
+一般的なウェブブラウザ・ウェブサーバであれば問題なく動作します。  
+モデルデータの容量が30MB程度となります。十分な通信速度を確保してください。
 
-[python.org](https://www.python.org/downloads/) から Python 3.x.x をインストールします。  
-インストーラの最初のページで、"Add Python 3.xxx to PATH" にチェックを入れます。  
-インストールが完了したら、Windowsならコマンドプロンプト、Mac/Linuxならターミナルを起動します。
+対応機器でVRモードを選択するとVRビューになります。  
+現在Oculus Questのみ安定した動作を確認しています。  
+非対応の機器でVRモードを選択した場合も、一人称視点でキャンパスを移動することができます。  
+PCの場合はWASDキー/矢印キーで、スマホやタブレットの場合はタップで操作が可能です。
 
-次のコマンドを入力します。  
-```python -V```  
-Pythonがインストールできていれば、バージョン名が返されます。
-
-当ページ右上のCloneから、プログラムを任意の場所にダウンロードして展開してください。  
-（もちろんOpen in Desktopでもgit cloneでも構いません）
-
-C:\Users\USERNAME\Documents\GitHub\virtual-infにダウンロードした場合、  
-```cd C:\Users\USERNAME\Documents\GitHub\virtual-inf```  
-でカレントディレクトリを変更し、  
-```python -m http.server```  
-でサーバーを起動します。
-
-この状態で、ウェブブラウザにて http://localhost:8000 にアクセスしてください。
-
-参考: [MDN web docs](https://developer.mozilla.org/ja/docs/Learn/Common_questions/set_up_a_local_testing_server)
-
-
-### 公開ウェブサーバで実行する
-
-一般的なウェブサーバであれば問題なく動作します。  
-モデルデータの容量が大きいため、十分な通信速度を確保してください。
+[ローカルテストサーバーで実行する](https://github.com/xr-hamaria/virtual-inf/wiki/ローカルテストサーバーで実行する)
 
 ## License
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+[MIT License](https://github.com/xr-hamaria/virtual-inf/blob/master/LICENSE)  
+ただし、学章等のデータの利用については[静岡大学学章等に関する規則](http://reiki.adb.shizuoka.ac.jp/act/frame/frame110000075.htm)をご参照ください。
+
+This project is licensed under the MIT License - see the LICENSE file for details.  
+Please check [here](http://reiki.adb.shizuoka.ac.jp/act/frame/frame110000075.htm) for more information on the use of the academic emblem data.
+
+# Contact
+
+TwitterのDMあるいはE-Mailにてご連絡ください。  
+Twitter: [@xR_Hamamatsu](https://twitter.com/xR_Hamamatsu)  
+E-mail: xr.hamamatsu(@)gmail.com
+
+# Author
+
+静大xR同好会はまりあ
 
 (c) 2020 Shizuoka University  
 (c) 2020 Shizuoka University xR Association "Hamaria"
