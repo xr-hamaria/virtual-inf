@@ -88,7 +88,8 @@ const toolTip = {
 	sogo: new TipBase("sogo", "総合研究棟"),
 	hei: new TipBase("hei", "スタッフクレジット", true),
 	tokeitou: new TipBase("tokeitou", "時計塔"),
-	アーマチュア: new TipBase("アーマチュア", "しずっぴー")
+	mother: new TipBase("mother", "「母」"),
+	keijiban: new TipBase("keijiban", "学生掲示板")
 };
 
 window.addEventListener('DOMContentLoaded', init);
