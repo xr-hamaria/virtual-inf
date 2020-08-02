@@ -151,6 +151,7 @@ tapHandler(window, () => {
 });
 
 function init() {
+	changeInstImage();
 	// レンダラーを作成
 	renderer = new THREE.WebGLRenderer({
 		canvas: domCanvas,
@@ -520,6 +521,17 @@ window.addEventListener('mousemove', function (ev){
 		tip = 0;
 	}
 });
+
+function changeInstImage() {
+	var ua = navigator.userAgent;
+	if (ua.indexOf('iPhone') > 0 || ua.indexOf('Android') > 0 && ua.indexOf('Mobile') > 0) {
+		$("#inst_box").attr("src","img/inst_s.png");
+	} else if (ua.indexOf('iPad') > 0 || ua.indexOf('Android') > 0) {
+		$("#inst_box").attr("src","img/inst_s.png");
+	} else {
+		$("#inst_box").attr("src","img/inst.png");
+	}
+}
 
 // VRモードへ切り替え
 window.changeVRMode = () => {

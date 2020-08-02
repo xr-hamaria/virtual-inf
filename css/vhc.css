@@ -58,9 +58,8 @@ body {
 #information {
 	width: 100%;
 	position: fixed;
-	top: 0;
-	left: 0;
-	margin: 5px;
+	top: 5px;
+	left: 5px;
 }
 
 #toolbar {
@@ -113,6 +112,10 @@ body {
 	margin-left: 10px;
 }
 
+#inst_box {
+	padding-top: 20px;
+}
+
 #vr_mode {
 	width: 100%;
 	position: fixed;
@@ -143,6 +146,9 @@ body {
 	.logo-image {
 		width: 45vw;
 	}
+	#toolbar {
+		margin: 6px 0;
+	}
 }
 
 @media screen and ( max-width: 798px ){
@@ -155,10 +161,10 @@ body {
 	#vrend_esc {
 		display: none;
 	}
-	.logo-image, #copyright img {
-		width: 70%;
-	}
 	.menu-image {
 		width: 25%;
+	}
+	#inst_box {
+		width: 45vw;
 	}
 }
