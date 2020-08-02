@@ -115,3 +115,9 @@ p a:hover {
 		margin-top: -20px;
 	}
 }
+
+@media screen and ( max-width: 820px ){
+	.wrapper-large-banner {
+		width: 80%;
+	}
+}
