@@ -43,10 +43,6 @@ body {
 	-webkit-transform: translateY(-50%) translateX(-50%);
 }
 
-#cover_loading > img {
-	width: 50vw;
-}
-
 #dialog {
 	width: 90%;
 	height: 90%;
@@ -143,15 +139,19 @@ body {
 	transition: all 0.1s;
 }
 
-.logo-image {
-	width: 45vw;
-}
-
-#copyright img {
-	width: 20vw;
+@media screen and ( max-width: 898px ){
+	.logo-image {
+		width: 45vw;
+	}
 }
 
 @media screen and ( max-width: 798px ){
+	#cover_loading > img {
+		width: 50vw;
+	}
+	#copyright img {
+	width: 20vw;
+	}
 	.logo-image, #copyright img {
 		width: 70%;
 	}

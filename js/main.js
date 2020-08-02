@@ -1,6 +1,6 @@
 /*
 静岡大学 バーチャル情報学部
-Prototype / Rev.17
+Ver.1.0
 
 (c)2020 Shizuoka University all rights reserved.
 Developed by Shizuoka University xR Association "Hamaria"
@@ -82,11 +82,13 @@ const toolTip = {
 	eng_3: new TipBase("eng_3", "工学部3号館"),
 	nanodevice: new TipBase("nanodevice", "ナノデバイス作製・評価センター"),
 	electronics: new TipBase("electronics", "電子工学研究所"),
-	hikari_soki: new TipBase("hikari_soki", "光創起イノベーション研究拠点棟"),
+	Hikarisoki: new TipBase("Hikarisoki", "光創起イノベーション研究拠点棟"),
 	inf_graduate: new TipBase("inf_graduate", "創造科学技術大学院"),
 	lecture_building: new TipBase("lecture_building", "共通講義棟", true, true, true),
 	sogo: new TipBase("sogo", "総合研究棟"),
-	hei: new TipBase("hei", "スタッフクレジット", true)
+	hei: new TipBase("hei", "スタッフクレジット", true),
+	tokeitou: new TipBase("tokeitou", "時計塔"),
+	アーマチュア: new TipBase("アーマチュア", "しずっぴー")
 };
 
 window.addEventListener('DOMContentLoaded', init);
@@ -177,7 +179,7 @@ function init() {
 	controls.maxDistance = 600;
 	controls.noKeys = true;
 	controls.maxPolarAngle = Math.PI * 0.495;
-
+	
 	const loader = new THREE.GLTFLoader();
 
 	let vrCamera = camera;
