@@ -152,6 +152,9 @@ body {
 	#copyright img {
 	width: 20vw;
 	}
+	#vrend_esc {
+		display: none;
+	}
 	.logo-image, #copyright img {
 		width: 70%;
 	}
