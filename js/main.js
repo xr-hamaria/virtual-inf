@@ -135,20 +135,19 @@ function tapHandler(dom, callback) {
 }
 
 tapHandler(window, () => {
-	if(dialog == 0 && tip_id != "" && toolTip[tip_id].impl == true) {
-		if(tip == 0)
-			return;
-		$("#dialog_title").text(tip_tx);
-		$("#cover").css("display", "block").css("opacity",0.3);
-		domDialog.show(500);
-		if(toolTip[tip_id] && toolTip[tip_id].impl) {
-			$("#dialog_main").load(`contents/${toolTip[tip_id].id}.html`);
-		} else {
-			$("#dialog_main").html('');
-		}
-		fade = 0;
-		dialog = 1;
+	if(!(dialog == 0 && tip_id != "" && toolTip[tip_id].impl == true) || tip == 0 || walkthrough.isLocked)
+		return;
+	$("#dialog_title").text(tip_tx);
+	$("#cover").css("display", "block").css("opacity",0.3);
+	if(toolTip[tip_id] && toolTip[tip_id].impl) {
+		$("#dialog_main").load(`contents/${toolTip[tip_id].id}.html`);
+	} else {
+		$("#dialog_main").html('');
 	}
+	domDialog.show(500);
+	fade = 0;
+	dialog = 1;
+	
 });
 
 function init() {
@@ -213,6 +212,7 @@ function init() {
 		if(!walkthrough.desktopMode) {
 			VirtualPad.show();
 		}
+		controls.enabled = false;
 	});
 	walkthrough.addEventListener('unlock', () => {
 		camera.matrixWorld = player.birdMatrix;
@@ -227,20 +227,24 @@ function init() {
 		if(!walkthrough.desktopMode) {
 			VirtualPad.hide();
 		}
+		controls.enabled = true;
 	});
 
 	if(!walkthrough.desktopMode) {
 		VirtualPad.init();
+		$('#vrend_esc').css('display', 'none');
 	}
 	window.addEventListener('enter_vr', () => {
 		if(camera != vrCamera)
 			vrCamera.position.set(116, player.eyeHeight, -50);
 		skyDome.visible = true;
+		controls.enabled = false;
 
 	});
 	window.addEventListener('exit_vr', () => {
 		vrCamera.position.set(0, 0, 0);
 		skyDome.visible = false;
+		controls.enabled = true;
 	});
 	const domProgressBar = $("#progressbar-front");
 	// 全体モデル

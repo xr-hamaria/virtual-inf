@@ -157,9 +157,6 @@ THREE.PointerLockControls = function ( camera, domElement ) {
 			scope.dispatchEvent( lockEvent );
 			scope.isLocked = true;
 		}
-		euler.x = 0;
-		euler.y = Math.PI / 2;
-		camera.quaternion.setFromEuler( euler );
 	};
 
 	this.unlock = function () {
