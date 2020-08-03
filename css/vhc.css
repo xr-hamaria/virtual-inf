@@ -113,7 +113,9 @@ body {
 }
 
 #inst_box {
+	display: block;
 	padding-top: 20px;
+	margin-left: -3px;
 }
 
 #vr_mode {
