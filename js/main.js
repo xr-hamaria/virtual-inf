@@ -1,6 +1,6 @@
 /*
 静岡大学 バーチャル情報学部
-Ver.1.0.1 (2020-08-03)
+Ver.1.0.2 (2020-08-04)
 
 (c)2020 Shizuoka University all rights reserved.
 Developed by Shizuoka University xR Association "Hamaria"

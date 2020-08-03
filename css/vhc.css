@@ -112,10 +112,13 @@ body {
 	margin-left: 10px;
 }
 
-#inst_box {
+.inst-box {
 	display: block;
-	padding-top: 20px;
 	margin-left: -3px;
+}
+
+#inst_box {
+	padding-top: 20px;
 }
 
 #vr_mode {
@@ -166,7 +169,7 @@ body {
 	.menu-image {
 		width: 25%;
 	}
-	#inst_box {
+	.inst-box {
 		width: 45vw;
 	}
 }
