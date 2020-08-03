@@ -40,10 +40,32 @@ var player = {
 		return pad && pad.axes ? pad.axes[2] : 0;
 	}
 };
+var settingsChangedEvent = new Event('settingschanged');
 var settings = {
-	enableFog: false,
-	enableShadow: false,
-	cycleSun: false
+	_enableFog: false,
+	_enableShadow: false,
+	_cycleSun: false,
+	set enableFog(val) {
+		this._enableFog = val;
+		window.dispatchEvent(settingsChangedEvent);
+	},
+	set enableShadow(val) {
+		this._enableShadow = val;
+		window.dispatchEvent(settingsChangedEvent);
+	},
+	set cycleSun(val) {
+		this._cycleSun = val;
+		window.dispatchEvent(settingsChangedEvent);
+	},
+	get enableFog() {
+		return this._enableFog;
+	},
+	get enableShadow() {
+		return this._enableShadow;
+	},
+	get cycleSun() {
+		return this._cycleSun;
+	}
 };
 const domtip = $("#tip");
 const domCover = $("#cover");
@@ -268,7 +290,7 @@ function init() {
 					while(parent.parent && parent.parent != model && (parent = parent.parent));
 					parentMap[child.name] = parent.name;
 				}
-				if(settings.enableShadow && child.type == "Mesh") {
+				if(child.type == "Mesh") {
 					let isFloor = parentMap[child.name] && parentMap[child.name].includes('floor');
 					child.receiveShadow = isFloor;
 					child.castShadow = !isFloor;
@@ -320,13 +342,6 @@ function init() {
 
 	scene.add(new THREE.AmbientLight(0xFFFFFF, 0.6));
 	const sun = new THREE.DirectionalLight(0xFFFFFF, 2);
-	if(settings.enableShadow) {
-		sun.castShadow = true;
-		sun.shadow.camera.right = 200;
-		sun.shadow.camera.left = -200;
-		sun.shadow.camera.top = -200;
-		sun.shadow.camera.bottom = 200;
-	}
 	sun.position.set(0, 200, 180);
 	scene.add(sun);
 
@@ -375,6 +390,22 @@ function init() {
 	document.addEventListener( 'keydown', (evt) => keyCheck(evt, true), false );
 	document.addEventListener( 'keyup', (evt) => keyCheck(evt, false), false );
 
+	window.addEventListener('settingschanged', () => {
+		if(settings.enableFog) {
+			scene.fog = new THREE.Fog(0xFFFFFF, 50, 1500);
+		} else {
+			scene.fog = null;
+		}
+		renderer.shadowMap.enabled = settings.enableShadow;
+		sun.castShadow = settings.enableShadow;
+		if(settings.enableShadow) {
+			sun.shadow.camera.right = 200;
+			sun.shadow.camera.left = -200;
+			sun.shadow.camera.top = -200;
+			sun.shadow.camera.bottom = 200;
+		}
+	});
+	window.vcConfig = settings;
 	function isFirstPersonMode() {
 		return walkthrough.isLocked || renderer.xr.isPresenting;
 	}
