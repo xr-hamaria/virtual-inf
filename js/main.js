@@ -254,7 +254,7 @@ function init() {
 
 	if(!walkthrough.desktopMode) {
 		VirtualPad.init();
-		$('#vrend_esc').css('display', 'none');
+		$('#inst_vr').css('display', 'none');
 	}
 	window.addEventListener('enter_vr', () => {
 		if(camera != vrCamera)
