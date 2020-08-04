@@ -45,6 +45,7 @@ var settings = {
 	_enableFog: false,
 	_enableShadow: false,
 	_cycleSun: false,
+	_cycleSpeed: 10000,
 	set enableFog(val) {
 		this._enableFog = val;
 		window.dispatchEvent(settingsChangedEvent);
@@ -57,6 +58,10 @@ var settings = {
 		this._cycleSun = val;
 		window.dispatchEvent(settingsChangedEvent);
 	},
+	set cycleSpeed(val) {
+		this._cycleSpeed = val;
+		window.dispatchEvent(settingsChangedEvent);
+	},
 	get enableFog() {
 		return this._enableFog;
 	},
@@ -65,12 +70,16 @@ var settings = {
 	},
 	get cycleSun() {
 		return this._cycleSun;
+	},
+	get cycleSpeed() {
+		return this._cycleSpeed;
 	}
 };
 const domtip = $("#tip");
 const domCover = $("#cover");
 const domDebug = $("#debug_camera");
 const domDialog = $("#dialog");
+const domDialogMain = $("#dialog_main");
 const domCanvas = document.getElementById('canvas');
 var parentMap = {};
 const TipBase = function(id, label, impl, doc, pic = false) {
@@ -175,16 +184,28 @@ tapHandler(window, () => {
 function init() {
 	changeInstImage();
 	// レンダラーを作成
-	renderer = new THREE.WebGLRenderer({
-		canvas: domCanvas,
-		antialias: true
-	});
+	
 	var width = window.innerWidth;
 	var height = window.innerHeight;
-	renderer.setClearColor(0x345CAA);
-	renderer.setPixelRatio(1);
-	renderer.setSize(width, height);
-	renderer.shadowMap.enabled = settings.enableShadow;
+	try
+	{
+		renderer = new THREE.WebGLRenderer({
+			canvas: domCanvas,
+			antialias: true
+		});
+		renderer.setClearColor(0x345CAA);
+		renderer.setPixelRatio(1);
+		renderer.setSize(width, height);
+		renderer.shadowMap.enabled = settings.enableShadow;
+	} catch(exception) {
+		console.log(exception);
+		renderer = null;
+		$('#cover_loading').hide(100);
+		$('#progressbar').hide(100);
+		$('#cover').delay(100).html('<p style="color:white;font-size:1.5em;">ご利用の環境では、本コンテンツを利用できません。</p>');
+		return;
+	}
+
 	// VRボタンの有効をチェック後有効化
 	if(VRButton.enableVR()) {
 		renderer.xr.enabled = true;
@@ -382,7 +403,10 @@ function init() {
 			case 68: // d
 				player.inputs[3] = val;
 				break;
-			case 113:
+			case 112:
+				if(!val && isFirstPersonMode && isFirstPersonMode()) {
+					$('#vr_mode').toggle();
+				}
 				break;
 		}
 	}
@@ -422,7 +446,17 @@ function init() {
 		return intersects.length <= 0 && intersects2.length <= 0;
 	}
 
+	function calcSunPosition() {
+		const date = new Date();
+		const now = (date.getHours() * 60*60*1000 + date.getMinutes()*60*1000+date.getSeconds()*1000 +date.getMilliseconds())/ (1440*60*1000) * settings.cycleSpeed;
+		const rad = now * Math.PI * 2;
+		sun.position.set(Math.cos(rad) * 200, Math.sin(rad) * -200, sun.position.z);
+	}
+
 	function tickMove() {
+		if(!isFirstPersonMode())
+			return;
+
 		const delta = (curTime - prevTime) / 1000.0;
 		if(renderer.xr.isPresenting && player.hasController && player.controller) {
 			let vec = new THREE.Vector3();
@@ -452,12 +486,11 @@ function init() {
 		}
 		
 	}
-	let timer = 0;
+	let oldTip = tip;
 	function tick() {
 		curTime = performance.now();
 		if(settings.cycleSun) {
-			timer++;
-			sun.position.set(Math.cos((timer % 360) / 360 * Math.PI * 2) * 200, Math.sin((timer % 360) / 360 * Math.PI * 2) * 200, sun.position.z);
+			calcSunPosition();
 		}
 
 		if(!isFirstPersonMode()) {
@@ -489,33 +522,36 @@ function init() {
 		
 		// ツールチップ処理
 		if(!isFirstPersonMode()) {
-			if (tip == 0) {
-				domtip.hide();
-			}
-			if (tip == 1) {
-				domtip.show();
+			if(oldTip != tip) {
+				if (tip == 0) {
+					domtip.hide();
+				}
+				if (tip == 1) {
+					domtip.show();
+				}
 			}
 			
 			if (dialog == 1) {
 				if (dy != domDialog.height()) {
 					dy = domDialog.height();
-					$("#dialog_main").height(dy - 105);
+					domDialogMain.height(dy - 105);
 				}
 			}
 			
-			if (tip_id != "") {
-				var tip_html = "";
-				tip_html += "<span>"+tip_tx+"</span>";
-				if (toolTip[tip_id].doc) {
-					tip_html += "<img src='img/icon/icon-expl.png' class='icon-first'>";
+			if (tip_id && tip_id.length > 0) {
+				if (toolTip[tip_id].doc && toolTip[tip_id].pic) {
+					domtip.html("<span>" + tip_tx + "</span><img src='img/icon/icon-expl.png' class='icon-first'><img src='img/icon/icon-photo.png'>");
+				} else if (toolTip[tip_id].doc) {
+					domtip.html("<span>" + tip_tx + "</span><img src='img/icon/icon-expl.png' class='icon-first'>");
+				} else if (toolTip[tip_id].pic) {
+					domtip.html("<span>" + tip_tx + "</span><img src='img/icon/icon-photo.png'>");
+				} else {
+					domtip.html("<span>" + tip_tx + "</span>");
 				}
-				if (toolTip[tip_id].pic) {
-					tip_html += "<img src='img/icon/icon-photo.png'>";
-				}
-				domtip.html(tip_html);
 			}
 		}
 		prevTime = curTime;
+		oldTip = tip;
 	}
 }
 
