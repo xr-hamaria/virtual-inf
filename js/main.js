@@ -33,11 +33,27 @@ var player = {
 	getControllerIndex : function() {
 		return 0;
 	},
-	getHorizontal : function(pad) {	// must return -1.0 ~ 1.0
-		return pad && pad.axes ? -pad.axes[3] : 0;
+	getHorizontal : function(source) {	// must return -1.0 ~ 1.0
+		if(!source || !source.gamepad)
+			return 0;
+		let index = 1;
+		if(source.profiles && source.profiles.length > 0) {
+			const name = source.profiles[0];
+			if(name.includes('oculus-touch') || name.includes('Oculus Touch'))
+				index = 3;
+		}
+		return -source.gamepad.axes[index];
 	},
-	getVertical : function(pad) {	// must return -1.0 ~ 1.0
-		return pad && pad.axes ? pad.axes[2] : 0;
+	getVertical : function(source) {	// must return -1.0 ~ 1.0
+		if(!source || !source.gamepad)
+			return 0;
+		let index = 0;
+		if(source.profiles && source.profiles.length > 0) {
+			const name = source.profiles[0];
+			if(name.includes('oculus-touch') || name.includes('Oculus Touch'))
+				index = 2;
+		}
+		return source.gamepad.axes[index];
 	}
 };
 var settingsChangedEvent = new Event('settingschanged');
@@ -373,8 +389,9 @@ function init() {
 	try {
 		const moveController = renderer.xr.getController(player.getControllerIndex());
 		moveController.addEventListener( 'connected', (evt) => {
-			if(evt && evt.data && evt.data.gamepad)
-				player.controller = evt.data.gamepad;
+			if(evt && evt.data ) {
+				player.controller = evt.data;
+			}
 		});
 		moveController.addEventListener( 'disconnected', (evt) => {
 			player.controller = null;

@@ -4,7 +4,7 @@
  *
  * Based on @tojiro's vr-samples-utils.js
  */
-
+var polyfill = new WebXRPolyfill();
 var supportOldAPI = false;
 
 var WEBVR = {
@@ -290,14 +290,20 @@ var WEBXR = {
 			element.style.zIndex = '999';
 		}
 
-		if ( 'xr' in navigator ) {
+		if ( 'xr' in navigator || navigator.xr !== undefined) {
 			var button = document.createElement( 'button' );
 			button.id = 'VRButton';
 			button.style.display = 'none';
 			stylizeElement( button );
-			navigator.xr.isSessionSupported( 'immersive-vr' ).then( function ( supported ) {
-				supported ? showEnterVR() : showWebXRNotFound();
-			} );
+			if(navigator.xr.isSessionSupported) {
+				navigator.xr.isSessionSupported( 'immersive-vr' ).then( function ( supported ) {
+					supported ? showEnterVR() : showWebXRNotFound();
+				} );
+			} else if(navigator.xr.supportsSession) {
+				navigator.xr.supportsSession( 'immersive-vr' ).then( function () {
+					showEnterVR();
+				} );
+			}
 			return button;
 		} else {
 			var message = document.createElement( 'a' );
@@ -325,7 +331,7 @@ var VRButton = {
 	createButton : function(renderer, options) {
 
 		//console.log('getVRDisplays' in navigator);
-		if ( supportOldAPI && 'getVRDisplays' in navigator ) {
+		if ( supportOldAPI && 'getVRDisplays' in navigator && !('xr' in navigator)) {
 			return WEBVR.createButton(renderer);
 		}
 
