@@ -15,7 +15,7 @@ PCの場合はWASDキー/矢印キーで、スマホやタブレットの場合�
 
 一部のVR対応機器ならびに対応ブラウザでページを開くと、画面下部に「ENTER VR」と表示されます。  
 こちらを選択するとHMDでのVR体験ができます。Oculus Questで動作確認済みです。  
-SteamVR等のPCVRは現在のところ未対応です。
+SteamVRにも対応しました。FireFoxでページを起動し、VRへのアクセスを許可して、画面下部の「ENTER VR」をクリックしてください。
 
 [ローカルテストサーバーで実行する](https://github.com/xr-hamaria/virtual-inf/wiki/ローカルテストサーバーで実行する)
 
