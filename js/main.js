@@ -1,6 +1,6 @@
 /*
 静岡大学 バーチャル情報学部
-Ver.1.0.3 (2020-08-16)
+Ver.1.0.4 (2020-08-22)
 
 (c)2020 Shizuoka University all rights reserved.
 Developed by Shizuoka University xR Association "Hamaria"
@@ -136,7 +136,10 @@ const toolTip = {
 	hei: new TipBase("hei", "スタッフクレジット", true),
 	tokeitou: new TipBase("tokeitou", "時計塔"),
 	mother: new TipBase("mother", "「母」"),
-	keijiban: new TipBase("keijiban", "学生掲示板")
+	keijiban: new TipBase("keijiban", "学生掲示板"),
+	statue_of_kenjiro: new TipBase("statue_of_kenjiro", "高柳健次郎", true, true, true),
+	toilet: new TipBase("toilet", "小ネタ", true, true),
+	sanaru_hall: new TipBase("sanaru_hall", "佐鳴会館", true, true)
 };
 
 window.addEventListener('DOMContentLoaded', init);
