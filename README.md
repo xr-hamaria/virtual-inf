@@ -22,10 +22,11 @@ SteamVRにも対応しました。FireFoxでページを起動し、VRへのア�
 ## License
 
 [MIT License](https://github.com/xr-hamaria/virtual-inf/blob/master/LICENSE)  
-ただし、学章等のデータの利用については[静岡大学学章等に関する規則](http://reiki.adb.shizuoka.ac.jp/act/frame/frame110000075.htm)をご参照ください。
-
+ただし、学章等のデータの利用については[静岡大学学章等に関する規則](http://reiki.adb.shizuoka.ac.jp/act/frame/frame110000075.htm)をご参照ください。  
+また、キャンパスデータには一部OpenStreetMapのデータを含みますので、[https://www.openstreetmap.org/copyright](https://www.openstreetmap.org/copyright)をご参照ください。
 This project is licensed under the MIT License - see the LICENSE file for details.  
-Please check [here](http://reiki.adb.shizuoka.ac.jp/act/frame/frame110000075.htm) for more information on the use of the academic emblem data.
+Please check [here](http://reiki.adb.shizuoka.ac.jp/act/frame/frame110000075.htm) for more information on the use of the academic emblem data.  
+The campus data includes data from OpenStreetMap. Please check [here](https://www.openstreetmap.org/copyright) for more information.
 
 ## Contact
 
@@ -37,5 +38,5 @@ E-mail: xr.hamamatsu(@)gmail.com
 
 静大xR同好会はまりあ
 
-(c) 2020 Shizuoka University  
-(c) 2020 Shizuoka University xR Association "Hamaria"
+(c) 2020 Shizuoka University xR Association "Hamaria"  
+(c) [OpenStreetMap](https://www.openstreetmap.org/copyright) contributors
