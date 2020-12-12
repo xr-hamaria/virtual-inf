@@ -64,3 +64,38 @@
 	width: 150px;
 	text-align: left;
 }
+
+.chkbox {
+	margin: 20px 0;
+}
+
+.chkbox label {
+	margin-top: -4px;
+	padding-left: 35px;
+	font-size: 16px;
+	font-weight: bold;
+	display: inline-block;
+	cursor: pointer;
+	position: relative;
+}
+
+.chkbox label:before {
+	content: '';
+	width: 20px;
+	height: 20px;
+	display: inline-block;
+	position: absolute;
+	top: 1px;
+	left: 0;
+	background-color:	rgb(255,255,255);
+	border: solid 2px rgb(52, 92, 170);
+	border-radius: 5px;
+}
+
+.chkbox input[type=checkbox] {
+	display: none;
+}
+
+.chkbox input[type=checkbox]:checked + label:before {
+	background-color:	rgb(52, 92, 170);
+}

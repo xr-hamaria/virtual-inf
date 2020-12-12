@@ -1,6 +1,6 @@
 /*
 静岡大学 バーチャル情報学部
-Ver.1.0.4 (2020-08-22)
+Ver.1.1 (2020-12-12)
 
 (c)2020 Shizuoka University all rights reserved.
 Developed by Shizuoka University xR Association "Hamaria"
@@ -9,9 +9,15 @@ Developed by Shizuoka University xR Association "Hamaria"
 import { VRButton } from './WebVR.js';
 import { VirtualPad } from './virtualpad.js';
 
+var savedata = [0, 0, 0, 0];
+if (localStorage.hasOwnProperty("savedata")) {
+	savedata = JSON.parse(localStorage.getItem("savedata"));
+}
+
 const debugMode = false;
 var html = "";
 var renderer, scene, camera, controls;
+var ct = 0;
 var tip = 0;
 var tip_tx = "";
 var tip_id = "";
@@ -187,17 +193,18 @@ function tapHandler(dom, callback) {
 tapHandler(window, () => {
 	if(!(dialog == 0 && tip_id != "" && toolTip[tip_id].impl == true) || tip == 0 || walkthrough.isLocked)
 		return;
+	controls.enabled = false;
 	$("#dialog_title").text(tip_tx);
 	$("#cover").css("display", "block").css("opacity",0.3);
 	if(toolTip[tip_id] && toolTip[tip_id].impl) {
-		$("#dialog_main").load(`contents/${toolTip[tip_id].id}.html`);
+		$("#dialog_main").load(`contents/${toolTip[tip_id].id}.html`, function(response, status, xhr) { domDialog.show(500);});
 	} else {
 		$("#dialog_main").html('');
 	}
+	
 	domDialog.show(500);
 	fade = 0;
 	dialog = 1;
-	
 });
 
 function init() {
@@ -208,10 +215,17 @@ function init() {
 	var height = window.innerHeight;
 	try
 	{
-		renderer = new THREE.WebGLRenderer({
-			canvas: domCanvas,
-			antialias: true
-		});
+		if (savedata[0] == 0) {
+			renderer = new THREE.WebGLRenderer({
+				canvas: domCanvas,
+				antialias: true
+			});
+		} else {
+			renderer = new THREE.WebGLRenderer({
+				canvas: domCanvas,
+				antialias: false
+			});
+		}
 		renderer.setClearColor(0x345CAA);
 		renderer.setPixelRatio(1);
 		renderer.setSize(width, height);
@@ -450,6 +464,13 @@ function init() {
 		}
 	});
 	window.vcConfig = settings;
+	if (savedata[2] == 1) {
+		vcConfig.enableShadow = true;
+	}
+	if (savedata[3] == 1) {
+		vcConfig.cycleSun = true;
+		vcConfig.cycleSpeed = 6000;
+	}
 	function isFirstPersonMode() {
 		return walkthrough.isLocked || renderer.xr.isPresenting;
 	}
@@ -523,7 +544,9 @@ function init() {
 
 		tickMove();
 
-		renderer.render(scene, camera);
+		if(savedata[1] == 0 || savedata[1] == 1 && ct == 0){ renderer.render(scene, camera); }
+		ct++;
+		if(ct == 2){ ct = 0; }
 		
 		// デバッグ用情報の表示
 		if(debugMode) {
@@ -576,41 +599,43 @@ function init() {
 }
 
 window.addEventListener('mousemove', function (ev){
-	if(!(scene && controls) || (walkthrough && walkthrough.isLocked))
-		return;
+	if(dialog == 0) {
+		if(!(scene && controls) || (walkthrough && walkthrough.isLocked))
+			return;
 
-	if(ev.target && ev.target.nodeName == "IMG") {
-		tip = 0;
-		return;
-	}
-	let hit = false;
-	let size = new THREE.Vector2();
-	// 画面上のマウスクリック位置
-	const x = event.clientX;
-	const y = event.clientY;
-	renderer.getSize(size);
-	// マウスクリック位置を正規化
-	let mouse = new THREE.Vector2();
-	mouse.x =  ( x / size.x ) * 2 - 1;
-	mouse.y = -( y / size.y ) * 2 + 1;
-	
-	// 取得したX、Y座標でrayの位置を更新
-	toolTipRaycaster.setFromCamera( mouse, camera );
-	// オブジェクトの取得
-	const intersects = toolTipRaycaster.intersectObjects(scene.children, true);
-	for (let i = 0; i < intersects.length; i++) {
-		const parent = parentMap[intersects[i].object.name];
-		if(parent && toolTip[parent]) {
-			domtip.css("left", x).css("top", y);
-			tip_id = parent;
-			tip_tx = toolTip[parent].label;
-			tip = 1;
-			hit = true;
-			break;
+		if(ev.target && ev.target.nodeName == "IMG") {
+			tip = 0;
+			return;
 		}
-	}
-	if (!hit) { 
-		tip = 0;
+		let hit = false;
+		let size = new THREE.Vector2();
+		// 画面上のマウスクリック位置
+		const x = event.clientX;
+		const y = event.clientY;
+		renderer.getSize(size);
+		// マウスクリック位置を正規化
+		let mouse = new THREE.Vector2();
+		mouse.x =  ( x / size.x ) * 2 - 1;
+		mouse.y = -( y / size.y ) * 2 + 1;
+		
+		// 取得したX、Y座標でrayの位置を更新
+		toolTipRaycaster.setFromCamera( mouse, camera );
+		// オブジェクトの取得
+		const intersects = toolTipRaycaster.intersectObjects(scene.children, true);
+		for (let i = 0; i < intersects.length; i++) {
+			const parent = parentMap[intersects[i].object.name];
+			if(parent && toolTip[parent]) {
+				domtip.css("left", x).css("top", y);
+				tip_id = parent;
+				tip_tx = toolTip[parent].label;
+				tip = 1;
+				hit = true;
+				break;
+			}
+		}
+		if (!hit) { 
+			tip = 0;
+		}
 	}
 });
 
@@ -645,11 +670,31 @@ window.closeVRMode = () => {
 	$("#VRButton").show(500);
 };
 
+// 操作説明の表示
 window.openHelp = () => {
+	controls.enabled = false;
 	$("#dialog_title").text("操作説明");
 	$("#cover").css("display", "block").css("opacity",0.3);
-	domDialog.show(500);
-	$("#dialog_main").load("contents/help.html");
+	$("#dialog_main").load("contents/help.html", function(response, status, xhr) { domDialog.show(500);});
+	fade = 0;
+	dialog = 1;
+}
+
+// 設定画面の表示
+window.openSettings = () => {
+	controls.enabled = false;
+	$("#dialog_title").text("設定");
+	$("#cover").css("display", "block").css("opacity",0.3);
+	$("#dialog_main").load("contents/settings.html", function(response, status, xhr) { 
+	for (let i = 0; i < savedata.length; i++) {
+			if (savedata[i] == 1) {
+				$("#chkbox" + i).attr("checked", true).prop("checked", true).change();
+			} else {
+				$("#chkbox" + i).attr("checked", false).prop("checked", false).change();
+			}
+		}
+		domDialog.show(500);
+	});
 	fade = 0;
 	dialog = 1;
 }
@@ -661,9 +706,24 @@ window.toggleDebugWindow = () => {
 
 // ダイアログを閉じる
 window.closeDialog = () => {
-	if(dialog == 0) return false;
+	if (dialog == 0) return false;
+	// 設定画面の処理
+	if ($("#dialog_title").text() == "設定") {
+		for (let i = 0; i < savedata.length; i++) {
+			if ($("#chkbox" + i).prop("checked") == true) {
+				savedata[i] = 1;
+			} else {
+				savedata[i] = 0;
+			}
+		}
+		localStorage.setItem("savedata", JSON.stringify(savedata));
+		location.reload();
+	}
+	// ここまで
+	if ($("video")[0]) $("video")[0].pause();
 	dialog = 0;
 	$("#dialog").hide(500);
 	$("#cover").css("opacity",0);
 	$("#cover_loading").hide();
+	controls.enabled = true;
 };
