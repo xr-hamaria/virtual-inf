@@ -82,8 +82,8 @@ body {
 	left: 16px;
 }
 
-#tip {
-	position:fixed;
+.tip {
+	position: absolute;
 	top: 0;
 	left: 0;
 	padding-top: 5px;
@@ -96,19 +96,27 @@ body {
 	color: #FFFFFF;
 	text-shadow: 1px 1px 1px rgba(0,0,0,0.3);
 	box-shadow: 2px 2px 2px rgba(0,0,0,0.7);
+}
+
+#tip {
 	display: none;
 }
 
-#tip span, #tip img {
+#tip_copy {
+	display: block;
+	opacity: 0;
+}
+
+.tip span, .tip img {
 	vertical-align: middle;
 }
 
-#tip img {
+.tip img {
 	margin-left: 5px;
 	margin-top: 2px;
 }
 
-#tip img.icon-first {
+.tip img.icon-first {
 	margin-left: 10px;
 }
 

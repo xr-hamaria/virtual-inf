@@ -1,11 +1,3 @@
-/*
-静岡大学 バーチャル情報学部
-Ver.1.1 (2020-12-12)
-
-(c)2020 Shizuoka University all rights reserved.
-Developed by Shizuoka University xR Association "Hamaria"
-*/
-
 import { VRButton } from './WebVR.js';
 import { VirtualPad } from './virtualpad.js';
 
@@ -98,6 +90,7 @@ var settings = {
 	}
 };
 const domtip = $("#tip");
+const domtipCopy = $("#tip_copy")
 const domCover = $("#cover");
 const domDebug = $("#debug_camera");
 const domDialog = $("#dialog");
@@ -177,7 +170,6 @@ function tapHandler(dom, callback) {
 	}
 	dom.addEventListener('touchend', evt => upHandler(evt), false);
 	dom.addEventListener('mouseup', evt => upHandler(evt), false);
-
 	
 	// for iOS
 	function preventScroll(evt) {
@@ -187,7 +179,6 @@ function tapHandler(dom, callback) {
 	}
 	document.addEventListener('touchstart', evt => preventScroll(evt),  { passive: false });
 	document.addEventListener('touchmove', evt => preventScroll(evt),  { passive: false });
-
 }
 
 tapHandler(window, () => {
@@ -197,7 +188,7 @@ tapHandler(window, () => {
 	$("#dialog_title").text(tip_tx);
 	$("#cover").css("display", "block").css("opacity",0.3);
 	if(toolTip[tip_id] && toolTip[tip_id].impl) {
-		$("#dialog_main").load(`contents/${toolTip[tip_id].id}.html`, function(response, status, xhr) { domDialog.show(500);});
+		loadContents(`contents/${toolTip[tip_id].id}.html`);
 	} else {
 		$("#dialog_main").html('');
 	}
@@ -583,14 +574,16 @@ function init() {
 			
 			if (tip_id && tip_id.length > 0) {
 				if (toolTip[tip_id].doc && toolTip[tip_id].pic) {
-					domtip.html("<span>" + tip_tx + "</span><img src='img/icon/icon-expl.png' class='icon-first'><img src='img/icon/icon-photo.png'>");
+					domtip.html("<span>" + tip_tx + "</span><img src='img/icon/icon-expl.svg' class='icon-first'><img src='img/icon/icon-photo.svg'>");
 				} else if (toolTip[tip_id].doc) {
-					domtip.html("<span>" + tip_tx + "</span><img src='img/icon/icon-expl.png' class='icon-first'>");
+					domtip.html("<span>" + tip_tx + "</span><img src='img/icon/icon-expl.svg' class='icon-first'>");
 				} else if (toolTip[tip_id].pic) {
-					domtip.html("<span>" + tip_tx + "</span><img src='img/icon/icon-photo.png'>");
+					domtip.html("<span>" + tip_tx + "</span><img src='img/icon/icon-photo.svg'>");
 				} else {
 					domtip.html("<span>" + tip_tx + "</span>");
 				}
+				domtipCopy.html(domtip.html());
+				domtip.css("width", domtipCopy.css("width")).css("height", domtipCopy.css("height"));
 			}
 		}
 		prevTime = curTime;
@@ -650,6 +643,16 @@ function changeInstImage() {
 	}
 }
 
+function loadContents(path) {
+	domtip.css("opacity", 0);
+	showLoadMessage();
+	$("#dialog_main").load(path, function(response, status, xhr) { domDialog.show(500);});
+}
+
+function showLoadMessage() {
+	$("#dialog_main").html("読み込み中。しばらくお待ち下さい...");
+}
+
 // VRモードへ切り替え
 window.changeVRMode = () => {
 	player.birdPos = camera.position;
@@ -675,7 +678,7 @@ window.openHelp = () => {
 	controls.enabled = false;
 	$("#dialog_title").text("操作説明");
 	$("#cover").css("display", "block").css("opacity",0.3);
-	$("#dialog_main").load("contents/help.html", function(response, status, xhr) { domDialog.show(500);});
+	loadContents("contents/help.html");
 	fade = 0;
 	dialog = 1;
 }
@@ -685,6 +688,7 @@ window.openSettings = () => {
 	controls.enabled = false;
 	$("#dialog_title").text("設定");
 	$("#cover").css("display", "block").css("opacity",0.3);
+	showLoadMessage();
 	$("#dialog_main").load("contents/settings.html", function(response, status, xhr) { 
 	for (let i = 0; i < savedata.length; i++) {
 			if (savedata[i] == 1) {
@@ -725,5 +729,6 @@ window.closeDialog = () => {
 	$("#dialog").hide(500);
 	$("#cover").css("opacity",0);
 	$("#cover_loading").hide();
+	domtip.css("opacity", 1);
 	controls.enabled = true;
 };
