@@ -574,11 +574,11 @@ function init() {
 			
 			if (tip_id && tip_id.length > 0) {
 				if (toolTip[tip_id].doc && toolTip[tip_id].pic) {
-					domtip.html("<span>" + tip_tx + "</span><img src='img/icon/icon-expl.png' class='icon-first'><img src='img/icon/icon-photo.png'>");
+					domtip.html("<span>" + tip_tx + "</span><img src='img/icon/icon-expl.svg' class='icon-first'><img src='img/icon/icon-photo.svg'>");
 				} else if (toolTip[tip_id].doc) {
-					domtip.html("<span>" + tip_tx + "</span><img src='img/icon/icon-expl.png' class='icon-first'>");
+					domtip.html("<span>" + tip_tx + "</span><img src='img/icon/icon-expl.svg' class='icon-first'>");
 				} else if (toolTip[tip_id].pic) {
-					domtip.html("<span>" + tip_tx + "</span><img src='img/icon/icon-photo.png'>");
+					domtip.html("<span>" + tip_tx + "</span><img src='img/icon/icon-photo.svg'>");
 				} else {
 					domtip.html("<span>" + tip_tx + "</span>");
 				}
