@@ -1,3 +1,5 @@
+import { GLTFLoader } from './GLTFLoader.js'
+import { RGBELoader } from './RGBELoader.js'
 import { VRButton } from './WebVR.js';
 import { VirtualPad } from './virtualpad.js';
 
@@ -248,7 +250,7 @@ function init() {
 	controls.noKeys = true;
 	controls.maxPolarAngle = Math.PI * 0.495;
 	
-	const loader = new THREE.GLTFLoader();
+	const loader = new GLTFLoader();
 
 	let vrCamera = camera;
 	// VR移動用のカメラ準備
@@ -363,7 +365,7 @@ function init() {
 			console.log(error);
 		}
 	);
-	new THREE.RGBELoader().load( 'img/vr_background.hdr', (skyTexture) => {
+	new RGBELoader().load( 'img/vr_background.hdr', (skyTexture) => {
 		skyTexture.flipY = false;
 		const sky = new THREE.Mesh( new THREE.SphereGeometry( 700, 32, 16 ), new THREE.MeshBasicMaterial( { map: skyTexture } ) );
 		sky.material.side = THREE.BackSide;
