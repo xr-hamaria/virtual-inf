@@ -94,6 +94,8 @@ var settings = {
 const domtip = $("#tip");
 const domtipText = $("#tip_text");
 const domtipCopy = $("#tip_copy");
+const domtipExpl = $("#tip_icon_expl");
+const domtipPhoto = $("#tip_icon_photo");
 const domCover = $("#cover");
 const domDebug = $("#debug_camera");
 const domDialog = $("#dialog");
@@ -574,13 +576,21 @@ function init() {
 			
 			if (tip_id && tip_id.length > 0) {
 				if (toolTip[tip_id].doc && toolTip[tip_id].pic) {
-					domtipText.html("<span>" + tip_tx + "</span><img src='img/icon/icon-expl.svg' class='icon-first'><img src='img/icon/icon-photo.svg'>");
+					domtipText.html("<span>" + tip_tx + "</span>");
+					domtipExpl.css("opacity", 1);
+					domtipPhoto.css("opacity", 1);
 				} else if (toolTip[tip_id].doc) {
-					domtipText.html("<span>" + tip_tx + "</span><img src='img/icon/icon-expl.svg' class='icon-first'>");
+					domtipText.html("<span>" + tip_tx + "</span>");
+					domtipExpl.css("opacity", 1);
+					domtipPhoto.css("opacity", 0.3);
 				} else if (toolTip[tip_id].pic) {
-					domtipText.html("<span>" + tip_tx + "</span><img src='img/icon/icon-photo.svg'>");
+					domtipText.html("<span>" + tip_tx + "</span>");
+					domtipExpl.css("opacity", 0.3);
+					domtipPhoto.css("opacity", 1);
 				} else {
 					domtipText.html("<span>" + tip_tx + "</span>");
+					domtipExpl.css("opacity", 0.3);
+					domtipPhoto.css("opacity", 0.3);
 				}
 				domtipCopy.html(domtip.html());
 				domtip.css("width", domtipCopy.css("width")).css("height", domtipCopy.css("height"));
