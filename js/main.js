@@ -92,7 +92,8 @@ var settings = {
 	}
 };
 const domtip = $("#tip");
-const domtipCopy = $("#tip_copy")
+const domtipText = $("#tip_text");
+const domtipCopy = $("#tip_copy");
 const domCover = $("#cover");
 const domDebug = $("#debug_camera");
 const domDialog = $("#dialog");
@@ -289,10 +290,7 @@ function init() {
 		camera.position.y = player.birdPos.y;
 		camera.position.z = player.birdPos.z;
 		skyDome.visible = false;
-		$("#information").show(500);
-		$("#copyright").show(500);
-		$("#vr_mode").hide(500);
-		$("#VRButton").show(500);
+		showNormalUI();
 		if(!walkthrough.desktopMode) {
 			VirtualPad.hide();
 		}
@@ -576,13 +574,13 @@ function init() {
 			
 			if (tip_id && tip_id.length > 0) {
 				if (toolTip[tip_id].doc && toolTip[tip_id].pic) {
-					domtip.html("<span>" + tip_tx + "</span><img src='img/icon/icon-expl.svg' class='icon-first'><img src='img/icon/icon-photo.svg'>");
+					domtipText.html("<span>" + tip_tx + "</span><img src='img/icon/icon-expl.svg' class='icon-first'><img src='img/icon/icon-photo.svg'>");
 				} else if (toolTip[tip_id].doc) {
-					domtip.html("<span>" + tip_tx + "</span><img src='img/icon/icon-expl.svg' class='icon-first'>");
+					domtipText.html("<span>" + tip_tx + "</span><img src='img/icon/icon-expl.svg' class='icon-first'>");
 				} else if (toolTip[tip_id].pic) {
-					domtip.html("<span>" + tip_tx + "</span><img src='img/icon/icon-photo.svg'>");
+					domtipText.html("<span>" + tip_tx + "</span><img src='img/icon/icon-photo.svg'>");
 				} else {
-					domtip.html("<span>" + tip_tx + "</span>");
+					domtipText.html("<span>" + tip_tx + "</span>");
 				}
 				domtipCopy.html(domtip.html());
 				domtip.css("width", domtipCopy.css("width")).css("height", domtipCopy.css("height"));
@@ -660,8 +658,10 @@ window.changeVRMode = () => {
 	player.birdPos = camera.position;
 	player.birdMatrix = camera.matrixWorld;
 	walkthrough.lock();
-	$("#information").hide(500);
-	$("#copyright").hide(500);
+	$("#header").fadeOut(500);
+	$("#menu").fadeOut(500);
+	$("#footer").fadeOut(500);
+	$("#vr_menu").fadeIn(500);
 	$("#vr_mode").show(500);
 	$("#VRButton").hide(500);
 };
@@ -669,10 +669,7 @@ window.changeVRMode = () => {
 // VRモードの終了
 window.closeVRMode = () => {
 	walkthrough.unlock();
-	$("#information").show(500);
-	$("#copyright").show(500);
-	$("#vr_mode").hide(500);
-	$("#VRButton").show(500);
+	showNormalUI();
 };
 
 // 操作説明の表示
@@ -734,3 +731,12 @@ window.closeDialog = () => {
 	domtip.css("opacity", 1);
 	controls.enabled = true;
 };
+
+function showNormalUI() {
+	$("#header").fadeIn(500);
+	$("#menu").fadeIn(500);
+	$("#footer").fadeIn(500);
+	$("#vr_menu").fadeOut(500);
+	$("#vr_mode").hide(500);
+	$("#VRButton").show(500);
+}
