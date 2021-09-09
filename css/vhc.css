@@ -222,6 +222,12 @@ body {
 	text-align: center;
 }
 
+@media screen and ( max-width: 1098px ){
+	.menu {
+		display: none;
+	}
+}
+
 @media screen and ( max-width: 898px ){
 	.logo-image {
 		width: 45vw;
@@ -246,5 +252,8 @@ body {
 	}
 	.inst-box {
 		width: 45vw;
+	}
+	#footer {
+		display: none;
 	}
 }
