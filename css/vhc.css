@@ -58,9 +58,10 @@ body {
 }
 
 .menu {
-	position: absolute;
+	position: fixed;
 	right: 22px;
 	top: 20px;
+	z-index: 90;
 }
 
 .menu ul {
@@ -80,6 +81,10 @@ body {
 
 .menu li img {
 	height: 35px;
+}
+
+#mobile_menu, #mobile_menu_nt, #vr_menu {
+	display: none;
 }
 
 #dialog {
@@ -167,10 +172,6 @@ body {
 	padding-top: 20px;
 }
 
-#vr_menu {
-	display: none;
-}
-
 #vr_mode {
 	width: 100%;
 	position: fixed;
@@ -223,8 +224,12 @@ body {
 }
 
 @media screen and ( max-width: 1098px ){
-	.menu {
+	#menu {
 		display: none;
+	}
+
+	#mobile_menu {
+		display: block;
 	}
 }
 
@@ -232,6 +237,7 @@ body {
 	.logo-image {
 		width: 45vw;
 	}
+
 	#toolbar {
 		margin: 6px 0;
 	}
@@ -239,17 +245,25 @@ body {
 
 @media screen and ( max-width: 798px ){
 	#cover_loading > img {
-		width: 50vw;
+		width: 60vw;
 	}
+
 	#vrend_esc {
 		display: none;
 	}
+
+	.menu {
+		top: 22px;
+	}
+
 	.menu-image {
 		width: 25%;
 	}
+
 	.inst-box {
 		width: 45vw;
 	}
+
 	#header {
 		width: 100%;
 		height: 80px;
@@ -257,11 +271,33 @@ body {
 		text-align: center;
 		box-shadow: 0 3px 3px rgb(0, 0, 0, 0.3);
 	}
+
 	#header #logo {
 		height: 70px;
 	}
+
 	#footer {
 		display: none;
+	}
+}
+
+@media screen and ( max-width: 598px ){
+	#cover_loading > img {
+		width: 80vw;
+	}
+
+	#header #logo {
+		height: 50px;
+		left: 10px;
+		top: 15px;
+	}
+
+	#mobile_menu {
+		display: none;
+	}
+	
+	#mobile_menu_nt {
+		display: block;
 	}
 }
 
@@ -270,5 +306,11 @@ body {
 		height: 50px;
 		left: 10px;
 		top: 15px;
+	}
+}
+
+@media screen and ( max-width: 398px ){
+	.menu {
+		right: 12px;
 	}
 }
