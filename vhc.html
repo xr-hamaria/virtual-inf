@@ -38,6 +38,7 @@
 				<img src="img/loading.svg">
 			</div>
 		</div>
+		<div class="cover-mobile-menu" onclick="closeMenu()"></div>
 		<div id="header">
 			<img src="img/navbar_logo.svg" id="logo">
 		</div>
@@ -48,14 +49,21 @@
 				<li onclick="openSettings()"><img src="img/button/setup.svg"></li>
 			</ul>
 		</div>
+		<div class="menu" id="mobile_menubar">
+			<ul>
+				<li onclick="changeVRMode()"><img src="img/button/vr_mode.svg"></li>
+				<li onclick="openHelp()"><img src="img/button/help.svg"></li>
+				<li onclick="openSettings()"><img src="img/button/setup.svg"></li>
+			</ul>
+		</div>
 		<div class="menu" id="mobile_menu">
 			<ul>
-				<li onclick=""><img src="img/button/menu.svg"></li>
+				<li onclick="openMenu()"><img src="img/button/menu.svg"></li>
 			</ul>
 		</div>
 		<div class="menu" id="mobile_menu_nt">
 			<ul>
-				<li onclick=""><img src="img/button/menu2.svg"></li>
+				<li onclick="openMenu()"><img src="img/button/menu2.svg"></li>
 			</ul>
 		</div>
 		<div class="menu" id="vr_menu">

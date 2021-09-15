@@ -9,6 +9,8 @@ if (localStorage.hasOwnProperty("savedata")) {
 }
 
 const debugMode = false;
+let w = 0;
+let openMenuFlag = 0;
 var html = "";
 var renderer, scene, camera, controls;
 var ct = 0;
@@ -522,6 +524,22 @@ function init() {
 	}
 	let oldTip = tip;
 	function tick() {
+		if (w != document.body.clientWidth) {
+			w = document.body.clientWidth;
+			if (w > 1098) {
+				$("#menu").show();
+				$("#mobile_menu").hide();
+				$("#mobile_menu_nt").hide();
+			} else if (w <= 1098 && w > 598) {
+				$("#menu").hide();
+				$("#mobile_menu").show();
+				$("#mobile_menu_nt").hide();
+			} else if (w <= 598) {
+				$("#menu").hide();
+				$("#mobile_menu").hide();
+				$("#mobile_menu_nt").show();
+			}
+		}
 		curTime = performance.now();
 		if(settings.cycleSun) {
 			calcSunPosition();
@@ -562,7 +580,7 @@ function init() {
 				if (tip == 0) {
 					domtip.hide();
 				}
-				if (tip == 1) {
+				if (tip == 1 && openMenuFlag == 0) {
 					domtip.show();
 				}
 			}
@@ -663,13 +681,32 @@ function showLoadMessage() {
 	$("#dialog_main").html("読み込み中。しばらくお待ち下さい...");
 }
 
+// モバイル用メニューの表示
+window.openMenu = () => {
+	openMenuFlag = 1;
+	controls.enabled = false;
+	$(".cover-mobile-menu").fadeIn(250);
+	$("#mobile_menubar").css("left", "calc(100% - 300px)");
+};
+
+// モバイル用メニューを閉じる
+window.closeMenu = () => {
+	openMenuFlag = 0;
+	controls.enabled = true;
+	$("#mobile_menubar").css("left", "100%");
+	$(".cover-mobile-menu").fadeOut(250);
+};
+
 // VRモードへ切り替え
 window.changeVRMode = () => {
+	closeMenu();
 	player.birdPos = camera.position;
 	player.birdMatrix = camera.matrixWorld;
 	walkthrough.lock();
 	$("#header").fadeOut(500);
 	$("#menu").fadeOut(500);
+	$("#mobile_menu").fadeOut(500);
+	$("#mobile_menu_nt").fadeOut(500);
 	$("#footer").fadeOut(500);
 	$("#vr_menu").fadeIn(500);
 	$("#vr_mode").show(500);
@@ -684,6 +721,7 @@ window.closeVRMode = () => {
 
 // 操作説明の表示
 window.openHelp = () => {
+	closeMenu();
 	controls.enabled = false;
 	$("#dialog_title").text("操作説明");
 	$("#cover").css("display", "block").css("opacity",0.3);
@@ -694,6 +732,7 @@ window.openHelp = () => {
 
 // 設定画面の表示
 window.openSettings = () => {
+	closeMenu();
 	controls.enabled = false;
 	$("#dialog_title").text("設定");
 	$("#cover").css("display", "block").css("opacity",0.3);
@@ -744,8 +783,16 @@ window.closeDialog = () => {
 
 function showNormalUI() {
 	$("#header").fadeIn(500);
-	$("#menu").fadeIn(500);
-	$("#footer").fadeIn(500);
+	if (w > 1098) {
+		$("#menu").fadeIn(500);
+	} else if (w <= 1098 && w > 598) {
+		$("#mobile_menu").fadeIn(500);
+	} else if (w <= 598) {
+		$("#mobile_menu_nt").fadeIn(500);
+	}
+	if (w > 798) {
+		$("#footer").fadeIn(500);
+	}
 	$("#vr_menu").fadeOut(500);
 	$("#vr_mode").hide(500);
 	$("#VRButton").show(500);
