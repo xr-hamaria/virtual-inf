@@ -408,8 +408,9 @@ function init() {
 	*/
 
 	const sun = new THREE.DirectionalLight(0xFFFFFF, 2);
+	const ambientLight = new THREE.AmbientLight(0xFFFFFF, 0.6)
 	sun.position.set(0, 200, 180);
-	scene.add(new THREE.AmbientLight(0xFFFFFF, 0.6));
+	scene.add(ambientLight);
 	scene.add(sun);
 
 	function initializeRenderer() {
@@ -522,9 +523,10 @@ function init() {
 
 	function calcSunPosition() {
 		const date = new Date();
-		const now = (date.getHours() * 60*60*1000 + date.getMinutes()*60*1000+date.getSeconds()*1000 +date.getMilliseconds())/ (1440*60*1000) * settings.cycleSpeed;
-		const rad = now * Math.PI * 2;
+		const now = (date.getHours() * 60*60*1000 + date.getMinutes()*60*1000+date.getSeconds()*1000 +date.getMilliseconds()) / (1440*60*1000) ;
+		const rad = now * settings.cycleSpeed * Math.PI * 2;
 		sun.position.set(Math.cos(rad) * 200, Math.sin(rad) * -200, sun.position.z);
+		ambientLight.intensity = 0.1 * now;
 	}
 
 	function tickMove() {
@@ -581,6 +583,8 @@ function init() {
 		curTime = performance.now();
 		if(settings.cycleSun) {
 			calcSunPosition();
+		} else {
+			ambientLight.intensity = 0.6;
 		}
 
 		if(!isFirstPersonMode()) {
