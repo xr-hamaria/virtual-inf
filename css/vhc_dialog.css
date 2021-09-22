@@ -5,12 +5,16 @@
 }
 
 #dialog_title {
+	width: calc(100% - 100px);
 	position: absolute;
 	top: 10px;
 	left: 90px;
 	color: rgb(52, 92, 170);
 	font-size: 42px;
 	font-weight: bold;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
 }
 
 #dialog_main {

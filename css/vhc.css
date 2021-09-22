@@ -313,6 +313,11 @@ body {
 	#footer {
 		display: none;
 	}
+
+	#dialog {
+		height: 95%;
+		top: 2.5%;
+	}
 }
 
 @media screen and ( max-width: 598px ){
