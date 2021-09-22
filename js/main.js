@@ -3,11 +3,6 @@ import { RGBELoader } from './RGBELoader.js'
 import { VRButton } from './WebVR.js';
 import { VirtualPad } from './virtualpad.js';
 
-var savedata = [0, 0, 0, 0];
-if (localStorage.hasOwnProperty("savedata")) {
-	savedata = JSON.parse(localStorage.getItem("savedata"));
-}
-
 const debugMode = false;
 let w = 0;
 let openMenuFlag = 0;
@@ -60,10 +55,17 @@ var player = {
 };
 var settingsChangedEvent = new Event('settingschanged');
 var settings = {
+	_enableAntialias: true,
 	_enableFog: false,
 	_enableShadow: false,
 	_cycleSun: false,
 	_cycleSpeed: 10000,
+	_halfFramerate : false,
+
+	set enableAntialias(val) {
+		this._enableAntialias = val;
+		window.dispatchEvent(settingsChangedEvent);
+	},
 	set enableFog(val) {
 		this._enableFog = val;
 		window.dispatchEvent(settingsChangedEvent);
@@ -80,6 +82,9 @@ var settings = {
 		this._cycleSpeed = val;
 		window.dispatchEvent(settingsChangedEvent);
 	},
+	get enableAntialias() {
+		return this._enableAntialias;
+	},
 	get enableFog() {
 		return this._enableFog;
 	},
@@ -93,6 +98,27 @@ var settings = {
 		return this._cycleSpeed;
 	}
 };
+
+(function loadSavedSettings() {
+	if (localStorage.hasOwnProperty("savedata")) {
+		const savedata = JSON.parse(localStorage.getItem("savedata"));
+		settings._enableAntialias = (savedata[0] != 1);
+		settings._halfFramerate = (savedata[1] == 1);
+		settings._enableShadow = (savedata[2] == 1);
+		settings._cycleSpeed = 6000;
+		settings._cycleSun = (savedata[3] == 1); 
+	}
+	if (localStorage.hasOwnProperty("settings")) {
+		try {
+			const loadedSettings = JSON.parse(localStorage.getItem("settings"));
+			for(let key of Object.keys(loadedSettings) ) {
+				if(key.startsWith("_"))
+					settings[key] = loadedSettings[key];
+			}
+		} catch(err) { }
+	}
+})();
+
 const domtip = $("#tip");
 const domtipText = $("#tip_text");
 const domtipCopy = $("#tip_copy");
@@ -213,17 +239,11 @@ function init() {
 	var height = window.innerHeight;
 	try
 	{
-		if (savedata[0] == 0) {
-			renderer = new THREE.WebGLRenderer({
-				canvas: domCanvas,
-				antialias: true
-			});
-		} else {
-			renderer = new THREE.WebGLRenderer({
-				canvas: domCanvas,
-				antialias: false
-			});
-		}
+		renderer = new THREE.WebGLRenderer({
+			canvas: domCanvas,
+			antialias: settings._enableAntialias
+		});
+
 		renderer.setClearColor(0x345CAA);
 		renderer.setPixelRatio(1);
 		renderer.setSize(width, height);
@@ -386,32 +406,35 @@ function init() {
 		scene.add(shizuppi);
 	});
 	*/
-	renderer.outputEncoding = THREE.sRGBEncoding;
-	renderer.gammaFactor = 2.2;
 
-	scene.add(new THREE.AmbientLight(0xFFFFFF, 0.6));
 	const sun = new THREE.DirectionalLight(0xFFFFFF, 2);
 	sun.position.set(0, 200, 180);
+	scene.add(new THREE.AmbientLight(0xFFFFFF, 0.6));
 	scene.add(sun);
 
-	camera.position.set(329.9886609379634,240.83169594230232,-35.899973772662483);
-	camera.rotation.set(-1.8099243120012465,0.7840724844004205,1.9031279561056308)
-	renderer.setAnimationLoop(tick);
+	function initializeRenderer() {
+		renderer.outputEncoding = THREE.sRGBEncoding;
+		renderer.gammaFactor = 2.2;
+		camera.position.set(329.9886609379634,240.83169594230232,-35.899973772662483);
+		camera.rotation.set(-1.8099243120012465,0.7840724844004205,1.9031279561056308)
+		renderer.setAnimationLoop(tick);
 
-	try {
-		const moveController = renderer.xr.getController(player.getControllerIndex());
-		moveController.addEventListener( 'connected', (evt) => {
-			if(evt && evt.data ) {
-				player.controller = evt.data;
-			}
-		});
-		moveController.addEventListener( 'disconnected', (evt) => {
+		try {
+			const moveController = renderer.xr.getController(player.getControllerIndex());
+			moveController.addEventListener( 'connected', (evt) => {
+				if(evt && evt.data ) {
+					player.controller = evt.data;
+				}
+			});
+			moveController.addEventListener( 'disconnected', (evt) => {
+				player.controller = null;
+			});
+			player.hasController = true;
+		} catch(err) {
 			player.controller = null;
-		});
-		player.hasController = true;
-	} catch(err) {
-		player.controller = null;
+		}
 	}
+	initializeRenderer();
 
 	// 移動用のキーボード処理
 	function keyCheck(evt, val) {
@@ -442,30 +465,45 @@ function init() {
 
 	document.addEventListener( 'keydown', (evt) => keyCheck(evt, true), false );
 	document.addEventListener( 'keyup', (evt) => keyCheck(evt, false), false );
+	window.vcConfig = settings;
 
 	window.addEventListener('settingschanged', () => {
-		if(settings.enableFog) {
+		if(true || renderer.antialias != settings.enableAntialias) {
+			let newRenderer = new THREE.WebGLRenderer({
+				canvas: domCanvas,
+				antialias: settings.enableAntialias
+			});
+
+			newRenderer.setClearColor(0x345CAA);
+			newRenderer.setPixelRatio(1);
+			newRenderer.setSize(width, height);
+			newRenderer.xr.enabled = renderer.xr.enabled;
+
+			newRenderer.shadowMap.enabled = renderer.shadowMap.enabled;
+			console.log(newRenderer);
+			renderer.dispose();
+			renderer = null;
+			renderer = newRenderer;
+			initializeRenderer();
+		}
+
+		if(window.vcConfig.enableFog) {
 			scene.fog = new THREE.Fog(0xFFFFFF, 50, 1500);
 		} else {
 			scene.fog = null;
 		}
-		renderer.shadowMap.enabled = settings.enableShadow;
-		sun.castShadow = settings.enableShadow;
-		if(settings.enableShadow) {
+		renderer.shadowMap.enabled = window.vcConfig.enableShadow;
+		sun.castShadow = window.vcConfig.enableShadow;
+		if(window.vcConfig.enableShadow) {
 			sun.shadow.camera.right = 200;
 			sun.shadow.camera.left = -200;
 			sun.shadow.camera.top = -200;
 			sun.shadow.camera.bottom = 200;
 		}
 	});
-	window.vcConfig = settings;
-	if (savedata[2] == 1) {
-		vcConfig.enableShadow = true;
-	}
-	if (savedata[3] == 1) {
-		vcConfig.cycleSun = true;
-		vcConfig.cycleSpeed = 6000;
-	}
+	window.dispatchEvent(settingsChangedEvent);
+
+	
 	function isFirstPersonMode() {
 		return walkthrough.isLocked || renderer.xr.isPresenting;
 	}
@@ -555,9 +593,10 @@ function init() {
 
 		tickMove();
 
-		if(savedata[1] == 0 || savedata[1] == 1 && ct == 0){ renderer.render(scene, camera); }
-		ct++;
-		if(ct == 2){ ct = 0; }
+		if(!vcConfig._halfFramerate || vcConfig._halfFramerate && ct == 0){ 
+			renderer.render(scene, camera);
+		}
+		ct = (ct + 1) % 2;
 		
 		// デバッグ用情報の表示
 		if(debugMode) {
@@ -737,12 +776,14 @@ window.openSettings = () => {
 	$("#dialog_title").text("設定");
 	$("#cover").css("display", "block").css("opacity",0.3);
 	showLoadMessage();
-	$("#dialog_main").load("contents/settings.html", function(response, status, xhr) { 
-	for (let i = 0; i < savedata.length; i++) {
-			if (savedata[i] == 1) {
-				$("#chkbox" + i).attr("checked", true).prop("checked", true).change();
-			} else {
-				$("#chkbox" + i).attr("checked", false).prop("checked", false).change();
+	
+	$("#dialog_main").load("contents/settings.html", function(response, status, xhr) {
+		for(let key of Object.keys(window.vcConfig)) {
+			if(typeof(window.vcConfig[key]) == 'boolean') {
+				const elem = $("#chkbox" + key);
+				if(elem.length > 0) {
+					elem.attr("checked", window.vcConfig[key]).prop("checked", window.vcConfig[key]).change();
+				}
 			}
 		}
 		domDialog.show(500);
@@ -761,14 +802,15 @@ window.closeDialog = () => {
 	if (dialog == 0) return false;
 	// 設定画面の処理
 	if ($("#dialog_title").text() == "設定") {
-		for (let i = 0; i < savedata.length; i++) {
-			if ($("#chkbox" + i).prop("checked") == true) {
-				savedata[i] = 1;
-			} else {
-				savedata[i] = 0;
+		for(let key of Object.keys(window.vcConfig)) {
+			if(typeof(window.vcConfig[key]) == 'boolean') {
+				const elem = $("#chkbox" + key);
+				if(elem.length > 0) {
+					window.vcConfig[key] = elem.prop("checked") 
+				}
 			}
 		}
-		localStorage.setItem("savedata", JSON.stringify(savedata));
+		localStorage.setItem("settings", JSON.stringify(window.vcConfig));
 		location.reload();
 	}
 	// ここまで
