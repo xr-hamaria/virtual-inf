@@ -161,7 +161,7 @@ const toolTip = {
 	eng_3: new TipBase("eng_3", "工学部3号館"),
 	nanodevice: new TipBase("nanodevice", "ナノデバイス作製・評価センター"),
 	electronics: new TipBase("electronics", "電子工学研究所"),
-	Hikarisoki: new TipBase("Hikarisoki", "光創起イノベーション研究拠点棟"),
+	Hikarisoki: new TipBase("Hikarisoki", "光創起イノベーション研究拠点棟", true, true, true),
 	inf_graduate: new TipBase("inf_graduate", "創造科学技術大学院"),
 	lecture_building: new TipBase("lecture_building", "共通講義棟", true, true, true),
 	sogo: new TipBase("sogo", "総合研究棟"),
