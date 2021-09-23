@@ -370,6 +370,7 @@ function init() {
 					child.material.metalness = Math.min(0.8, child.material.metalness);
 				}
 			}
+			model.scale.y = 0.01;
 			scene.add(gltf.scene);
 			domProgressBar.css('transform', `scaleX(1)`);
 			$("#cover").css("opacity",0);
@@ -580,6 +581,11 @@ function init() {
 				$("#mobile_menu_nt").show();
 			}
 		}
+		if(model && model.scale.y < 1) {
+			model.scale.y = Math.min(1, (model.scale.y+.2)*(model.scale.y+.2)*(3-2*(model.scale.y+.2)));
+		}
+
+
 		curTime = performance.now();
 		if(settings.cycleSun) {
 			calcSunPosition();
