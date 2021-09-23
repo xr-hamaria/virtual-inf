@@ -130,6 +130,7 @@ const domDialog = $("#dialog");
 const domDialogMain = $("#dialog_main");
 const domCanvas = document.getElementById('canvas');
 var parentMap = {};
+var nightWindows = [];
 const TipBase = function(id, label, impl, doc, pic = false) {
 	this.id = id;
 	this.label = label;
@@ -368,6 +369,9 @@ function init() {
 				if(child.type == "Mesh" && child.material) {
 					child.material.side = THREE.FrontSide;
 					child.material.metalness = Math.min(0.8, child.material.metalness);
+					if(child.material.name.toLowerCase() == 'window') {
+						nightWindows.push(child.material);
+					}
 				}
 			}
 			model.scale.y = 0.01;
@@ -524,10 +528,12 @@ function init() {
 
 	function calcSunPosition() {
 		const date = new Date();
-		const now = (date.getHours() * 60*60*1000 + date.getMinutes()*60*1000+date.getSeconds()*1000 +date.getMilliseconds()) / (1440*60*1000) ;
-		const rad = now * settings.cycleSpeed * Math.PI * 2;
+		const now = (((date.getHours() * 60*60*1000 + date.getMinutes() * 60*1000+date.getSeconds() * 1000 +date.getMilliseconds()) * settings.cycleSpeed) % 86400000) / 86400000;
+		const rad = (now + 0.375) * Math.PI * 2;
 		sun.position.set(Math.cos(rad) * 200, Math.sin(rad) * -200, sun.position.z);
 		ambientLight.intensity = 0.1 * now;
+		if(nightWindows.length > 0)
+		nightWindows[0].emissive.setHex(now < 0.25 || now > 0.75 ? 0xf4ef9b : 0x0);
 	}
 
 	function tickMove() {
