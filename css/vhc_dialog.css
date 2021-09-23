@@ -51,17 +51,25 @@
 }
 
 .dialog_photo {
-	height: 250px;
+	margin-bottom: 20px;
+	overflow: hidden;
+}
+
+.dialog_photo div {
+	width: 25%;
+	float: left;
 	padding-right: 14px;
 	padding-bottom: 9px;
 	box-sizing: border-box;
 }
 
+.dialog_photo div img {
+	width: 100%;
+}
+
 .dialog_video {
 	width: 50%;
-	padding-right: 14px;
-	padding-bottom: 9px;
-	box-sizing: border-box;
+	margin-bottom: 20px;
 }
 
 .dialog_help th {
