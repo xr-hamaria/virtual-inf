@@ -6,12 +6,16 @@ import { VirtualPad } from './virtualpad.js';
 const debugMode = false;
 let w = 0;
 let openMenuFlag = 0;
-var html = "";
 var renderer, scene, camera, controls;
 var ct = 0;
-var tip = 0;
-var tip_tx = "";
-var tip_id = "";
+
+var tooltip = {
+	visible: false,
+	prevFrameVisible: false,
+	label: '',
+	targetId: ''
+};
+
 var dialog = 0;
 var dy = 0;
 var fade = 0;
@@ -138,7 +142,7 @@ const TipBase = function(id, label, impl, doc, pic = false) {
 	this.doc = doc;
 	this.pic = pic;
 };
-const toolTip = {
+const toolTips = {
 	inf_1: new TipBase("inf_1", "情報学部1号館"),
 	inf_2: new TipBase("inf_2", "情報学部2号館", true, true, true),
 	s_port: new TipBase("s-port", "S-Port", true, true, true),
@@ -216,13 +220,13 @@ function tapHandler(dom, callback) {
 }
 
 tapHandler(window, () => {
-	if(!(dialog == 0 && tip_id != "" && toolTip[tip_id].impl == true) || tip == 0 || walkthrough.isLocked)
+	if(!(dialog == 0 && tooltip.targetId != "" && toolTips[tooltip.targetId].impl == true) || !tooltip.visible || walkthrough.isLocked)
 		return;
 	controls.enabled = false;
-	$("#dialog_title").text(tip_tx);
+	$("#dialog_title").text(tooltip.label);
 	$("#cover").css("display", "block").css("opacity",0.3);
-	if(toolTip[tip_id] && toolTip[tip_id].impl) {
-		loadContents(`contents/${toolTip[tip_id].id}.html`);
+	if(toolTips[tooltip.targetId] && toolTips[tooltip.targetId].impl) {
+		loadContents(`contents/${toolTips[tooltip.targetId].id}.html`);
 	} else {
 		$("#dialog_main").html('');
 	}
@@ -569,7 +573,7 @@ function init() {
 		}
 		
 	}
-	let oldTip = tip;
+	
 	function tick() {
 		if (w != document.body.clientWidth) {
 			w = document.body.clientWidth;
@@ -616,8 +620,7 @@ function init() {
 		
 		// デバッグ用情報の表示
 		if(debugMode) {
-			html = "[Camera Parameter]<br>X Position："+camera.position.x+"<br>Y Position："+camera.position.y+"<br>Z Position："+camera.position.z+"<br>X Rotation："+camera.rotation.x+"<br>Y Rotation："+camera.rotation.y+"<br>Z Rotation："+camera.rotation.z+"<br>X Scale："+camera.scale.x+"<br>Y Scale："+camera.scale.y+"<br>Z Scale："+camera.scale.z;
-			domDebug.html(html);
+			domDebug.html("[Camera Parameter]<br>X Position："+camera.position.x+"<br>Y Position："+camera.position.y+"<br>Z Position："+camera.position.z+"<br>X Rotation："+camera.rotation.x+"<br>Y Rotation："+camera.rotation.y+"<br>Z Rotation："+camera.rotation.z+"<br>X Scale："+camera.scale.x+"<br>Y Scale："+camera.scale.y+"<br>Z Scale："+camera.scale.z);
 		}
 		
 		// フェード処理
@@ -629,48 +632,7 @@ function init() {
 			fade = 1;
 		}
 		
-		// ツールチップ処理
-		if(!isFirstPersonMode()) {
-			if(oldTip != tip) {
-				if (tip == 0) {
-					domtip.hide();
-				}
-				if (tip == 1 && openMenuFlag == 0) {
-					domtip.show();
-				}
-			}
-			
-			if (dialog == 1) {
-				if (dy != domDialog.height()) {
-					dy = domDialog.height();
-					domDialogMain.height(dy - 105);
-				}
-			}
-			
-			if (tip_id && tip_id.length > 0) {
-				if (toolTip[tip_id].doc && toolTip[tip_id].pic) {
-					domtipText.html("<span>" + tip_tx + "</span>");
-					domtipExpl.css("opacity", 1);
-					domtipPhoto.css("opacity", 1);
-				} else if (toolTip[tip_id].doc) {
-					domtipText.html("<span>" + tip_tx + "</span>");
-					domtipExpl.css("opacity", 1);
-					domtipPhoto.css("opacity", 0.3);
-				} else if (toolTip[tip_id].pic) {
-					domtipText.html("<span>" + tip_tx + "</span>");
-					domtipExpl.css("opacity", 0.3);
-					domtipPhoto.css("opacity", 1);
-				} else {
-					domtipText.html("<span>" + tip_tx + "</span>");
-					domtipExpl.css("opacity", 0.3);
-					domtipPhoto.css("opacity", 0.3);
-				}
-				domtipCopy.html(domtip.html());
-				domtip.css("width", domtipCopy.css("width")).css("height", domtipCopy.css("height"));
-			}
-		}
 		prevTime = curTime;
-		oldTip = tip;
 	}
 }
 
@@ -680,7 +642,7 @@ window.addEventListener('mousemove', function (ev){
 			return;
 
 		if(ev.target && ev.target.nodeName == "IMG") {
-			tip = 0;
+			tooltip.visible = false;
 			return;
 		}
 		let hit = false;
@@ -700,19 +662,47 @@ window.addEventListener('mousemove', function (ev){
 		const intersects = toolTipRaycaster.intersectObjects(scene.children, true);
 		for (let i = 0; i < intersects.length; i++) {
 			const parent = parentMap[intersects[i].object.name];
-			if(parent && toolTip[parent]) {
+			if(parent && toolTips[parent]) {
 				domtip.css("left", x).css("top", y);
-				tip_id = parent;
-				tip_tx = toolTip[parent].label;
-				tip = 1;
+				tooltip.targetId = parent;
+				tooltip.label = toolTips[parent].label;
+				tooltip.visible = true;
 				hit = true;
 				break;
 			}
 		}
 		if (!hit) { 
-			tip = 0;
+			tooltip.visible = false;
 		}
 	}
+
+	// ツールチップ処理
+	if(!(walkthrough && walkthrough.isLocked)) {
+		if(tooltip.prevFrameVisible != tooltip.visible) {
+			if (!tooltip.visible) {
+				domtip.hide();
+			}
+			if (tooltip.visible && openMenuFlag == 0) {
+				domtip.show();
+			}
+
+			if (tooltip.targetId && tooltip.targetId.length > 0) {
+				domtipText.html("<span>" + tooltip.label + "</span>");
+				domtipExpl.css("opacity", toolTips[tooltip.targetId].doc ? 1 : 0.3);
+				domtipPhoto.css("opacity", toolTips[tooltip.targetId].pic ? 1: 0.3);
+				domtipCopy.html(domtip.html());
+				domtip.css("width", domtipCopy.css("width")).css("height", domtipCopy.css("height"));
+			}
+		}
+		
+		if (dialog == 1 && dy != domDialog.height()) {
+			dy = domDialog.height();
+			domDialogMain.height(dy - 105);
+		}
+		
+
+	}
+	tooltip.prevFrameVisible = tooltip.visible;
 });
 
 function changeInstImage() {
