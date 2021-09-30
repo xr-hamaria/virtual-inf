@@ -27,7 +27,7 @@ body {
 	left: 0;
 	z-index: 100;
 	text-align: center;
-	background-color: rgb(0,0,0);
+	background-color: rgb(0, 0, 0);
 	-webkit-transition: all 0.5s;
     -moz-transition: all 0.5s;
     -ms-transition: all 0.5s;
@@ -43,6 +43,84 @@ body {
 	-webkit-transform: translateY(-50%) translateX(-50%);
 }
 
+.cover-mobile-menu {
+	width: 100%;
+	height: 100%;
+	position: fixed;
+	top: 0;
+	left: 0;
+	z-index: 100;
+	background-color: #000;
+	opacity: 0.7;
+	display: none;
+}
+
+#header {
+	position: fixed;
+	left: 0;
+	top: 0;
+	z-index: 10;
+}
+
+#header #logo {
+	position: absolute;
+	left: 10px;
+	top: 5px;
+	height: 120px;
+}
+
+.menu {
+	position: fixed;
+	right: 22px;
+	top: 20px;
+	z-index: 90;
+}
+
+.menu ul {
+	overflow: hidden;
+}
+
+.menu li {
+	margin-left: 35px;
+	float: left;
+	list-style-type: none;
+}
+
+.menu li:hover {
+	opacity: 0.7;
+	cursor: pointer;
+}
+
+.menu li img {
+	height: 35px;
+}
+
+#mobile_menu, #mobile_menu_nt, #mobile_menubar, #vr_menu {
+	display: none;
+}
+
+#mobile_menubar {
+	width: 300px;
+	height: 100%;
+	position: fixed;
+	left: 100%;
+	top: 0;
+	z-index: 110;
+	background-color: #345CAA;
+	box-shadow: 0 0 3px rgba(0, 0, 0, 0.7);
+	transition-property: left;
+	transition-duration: 0.5s;
+	transition-timing-function: ease-in-out;
+}
+
+#mobile_menubar ul{
+	padding-top: 5px;
+}
+
+#mobile_menubar li {
+	padding-top: 20px;
+}
+
 #dialog {
 	width: 90%;
 	height: 90%;
@@ -50,8 +128,8 @@ body {
 	top: 5%;
 	left: 5%;
 	z-index: 101;
-	background-color: rgb(255,255,255);
-	box-shadow: 0 0 5px rgb(0,0,0);
+	background-color: rgb(255, 255, 255);
+	box-shadow: 0 0 5px rgb(0, 0, 0);
 	display: none;
 }
 
@@ -70,16 +148,10 @@ body {
 	margin: 9px;
 	padding: 9px;
 	width: 300px;
-	background-color: rgba(255,255,255,0.9);
+	background-color: rgba(255, 255, 255, 0.9);
 	font-size: 12px;
-	box-shadow: 0 0 3px rgba(0,0,0,0.7);
+	box-shadow: 0 0 3px rgba(0, 0, 0, 0.7);
 	display: none;
-}
-
-#copyright {
-	position: fixed;
-	bottom: 10px;
-	left: 16px;
 }
 
 .tip {
@@ -92,10 +164,11 @@ body {
 	padding-right: 10px;
 	background-color: #345CAA;
 	border: solid 1px #FFFFFF;
-	z-index: 100;
+	z-index: 99;
 	color: #FFFFFF;
-	text-shadow: 1px 1px 1px rgba(0,0,0,0.3);
-	box-shadow: 2px 2px 2px rgba(0,0,0,0.7);
+	text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.3);
+	box-shadow: 2px 2px 2px rgba(0, 0, 0, 0.7);
+	overflow: hidden;
 }
 
 #tip {
@@ -105,6 +178,10 @@ body {
 #tip_copy {
 	display: block;
 	opacity: 0;
+}
+
+.tip .text {
+	float: left;
 }
 
 .tip span, .tip img {
@@ -125,8 +202,16 @@ body {
 	margin-left: -3px;
 }
 
+.inst-box-vr {
+	position: fixed;
+	left: 10px;
+	top: 10px;
+}
+
 #inst_box {
-	padding-top: 20px;
+	position: fixed;
+	left: 10px;
+	top: 150px;
 }
 
 #vr_mode {
@@ -155,10 +240,46 @@ body {
 	transition: all 0.1s;
 }
 
+#footer {
+	width: 100%;
+	height: 30px;
+	position: fixed;
+	left: 0;
+	bottom: 0;
+	color: rgb(255, 255, 255);
+	font-size: 12px;
+	box-sizing: border-box;
+	z-index: 10;
+}
+
+#footer #copyright {
+	position: absolute;
+	left: 10px;
+	top: 5px;
+}
+
+#footer #version {
+	position: absolute;
+	right: 10px;
+	top: 5px;
+	text-align: center;
+}
+
+@media screen and ( max-width: 1098px ){
+	#menu {
+		display: none;
+	}
+
+	#mobile_menu, #mobile_menubar {
+		display: block;
+	}
+}
+
 @media screen and ( max-width: 898px ){
 	.logo-image {
 		width: 45vw;
 	}
+
 	#toolbar {
 		margin: 6px 0;
 	}
@@ -166,18 +287,85 @@ body {
 
 @media screen and ( max-width: 798px ){
 	#cover_loading > img {
-		width: 50vw;
+		width: 60vw;
 	}
-	#copyright img {
-	width: 20vw;
-	}
+
 	#vrend_esc {
 		display: none;
 	}
+
+	.menu {
+		top: 22px;
+	}
+
 	.menu-image {
 		width: 25%;
 	}
+
 	.inst-box {
 		width: 45vw;
+	}
+
+	#inst_box {
+		top: 100px;
+	}
+
+	#header {
+		width: 100%;
+		height: 80px;
+		background-color: #345CAA;
+		text-align: center;
+		box-shadow: 0 3px 3px rgb(0, 0, 0, 0.3);
+	}
+
+	#header #logo {
+		height: 70px;
+	}
+
+	#footer #copyright {
+		display: none;
+	}
+
+	#dialog {
+		height: 95%;
+		top: 2.5%;
+	}
+}
+
+@media screen and ( max-width: 598px ){
+	#cover_loading > img {
+		width: 80vw;
+	}
+
+	#header #logo {
+		height: 50px;
+		left: 10px;
+		top: 15px;
+	}
+
+	#mobile_menu {
+		display: none;
+	}
+	
+	#mobile_menu_nt {
+		display: block;
+	}
+
+	#inst_box {
+		display: none;
+	}
+}
+
+@media screen and ( max-width: 498px ){
+	#header #logo {
+		height: 50px;
+		left: 10px;
+		top: 15px;
+	}
+}
+
+@media screen and ( max-width: 398px ){
+	.menu {
+		right: 12px;
 	}
 }

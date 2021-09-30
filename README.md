@@ -1,9 +1,9 @@
 # virtual-inf
-静岡大学 バーチャル情報学部  
-Faculty of informatics, Shizuoka University (Virtual Edition)
+静岡大学 バーチャル浜松キャンパス  
+Shizuoka University Virtual Hamamatsu Campus
 
-静岡大学浜松キャンパスをバーチャルリアリティで楽しむことができます。  
-[静岡大学情報学部 ONLINE OPEN CAMPUS 2020](https://www.inf.shizuoka.ac.jp/opencampus2020/index.html)のコンテンツとして公開していますが、オープンキャンパス終了後も継続して開発および公開を予定しています。
+静岡大学の浜松キャンパスをバーチャルリアリティで楽しむことができます。  
+[静岡大学情報学部 ONLINE OPEN CAMPUS 2020](https://www.inf.shizuoka.ac.jp/opencampus2020/index.html)のコンテンツとして制作したものですが、オープンキャンパス終了後も開発および公開を続けております。
 
 ## Getting Started
 

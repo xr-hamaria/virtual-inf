@@ -1,20 +1,20 @@
 <!DOCTYPE html>
-<html>
+<html lang="ja">
 	<head>
-		<title>静岡大学 バーチャル情報学部</title>
+		<title>静岡大学 バーチャル浜松キャンパス</title>
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no">
 		<meta name="robots" content="noindex, nofollow">
 		<script src="js/jquery.js"></script>
 		<script src="js/three.min.js"></script>
-		<script src="https://cdn.jsdelivr.net/npm/webxr-polyfill@2.0.3/build/webxr-polyfill.min.js"></script>
-		<script src="js/GLTFLoader.js"></script>
-		<script src="js/RGBELoader.js"></script>
+		<script src="js/webxr-polyfill.min.js"></script>
+		<script src="js/GLTFLoader.js" type="module"></script>
+		<script src="js/RGBELoader.js" type="module"></script>
 		<script src="js/OrbitControls.js"></script>
 		<script src="js/PointerLockControls.js"></script>
-		<script src="js/main.js" type="module" ></script>
-		<script src="js/WebVR.js" type="module" ></script>
-		<script src="js/virtualpad.js" type="module" ></script>
+		<script src="js/main.js" type="module"></script>
+		<script src="js/WebVR.js" type="module"></script>
+		<script src="js/virtualpad.js" type="module"></script>
 		<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&display=swap" rel="stylesheet"> 
 		<link rel="stylesheet" href="css/vhc.css">
 		<link rel="stylesheet" href="css/vhc_dialog.css">
@@ -35,35 +35,56 @@
 	<body>
 		<div id="cover" onclick="closeDialog();">
 			<div id="cover_loading">
-				<img src="img/loading.png">
+				<img src="img/loading.svg">
 			</div>
 		</div>
+		<div class="cover-mobile-menu" onclick="closeMenu()"></div>
+		<div id="header">
+			<img src="img/navbar_logo.svg" id="logo">
+		</div>
+		<div class="menu" id="menu">
+			<ul>
+				<li onclick="changeVRMode()"><img src="img/button/vr_mode.svg"></li>
+				<li onclick="openHelp()"><img src="img/button/help.svg"></li>
+				<li onclick="openSettings()"><img src="img/button/setup.svg"></li>
+			</ul>
+		</div>
+		<div class="menu" id="mobile_menubar">
+			<ul>
+				<li onclick="changeVRMode()"><img src="img/button/vr_mode.svg"></li>
+				<li onclick="openHelp()"><img src="img/button/help.svg"></li>
+				<li onclick="openSettings()"><img src="img/button/setup.svg"></li>
+			</ul>
+		</div>
+		<div class="menu" id="mobile_menu">
+			<ul>
+				<li onclick="openMenu()"><img src="img/button/menu.svg"></li>
+			</ul>
+		</div>
+		<div class="menu" id="mobile_menu_nt">
+			<ul>
+				<li onclick="openMenu()"><img src="img/button/menu2.svg"></li>
+			</ul>
+		</div>
+		<div class="menu" id="vr_menu">
+			<ul>
+				<li onclick="closeVRMode()"><img src="img/button/vr_mode_exit.svg"></li>
+			</ul>
+		</div>
+		<img id="inst_box">
 		<div id="dialog">
 			<div id="dialog_exit"><a href="javascript:closeDialog()"><img src="img/close.png"></a></div>
 			<div id="dialog_title"></div>
 			<div id="dialog_main"></div>
 		</div>
-		<div class="tip" id="tip"></div>
+		<div class="tip" id="tip">
+			<div id="tip_text" class="text"></div>
+			<img src="img/icon/icon-expl.svg" class="icon-first" id="tip_icon_expl"><img src="img/icon/icon-photo.svg" id="tip_icon_photo">
+		</div>
 		<div class="tip" id="tip_copy"></div>
 		<div id="vr_mode">
 			<div id="toolbar">
-				<a href="javascript:closeVRMode()"><img src="img/vrend.png" class="menu-image"></a><br>
-				<img id="inst_vr" src="img/inst_vr.png" class="inst-box inst-box-vr">
-			</div>
-		</div>
-		<div id="information">
-			<img src="img/logo_white.png" class="logo-image"><br>
-			<div id="toolbar">
-				<a href="javascript:changeVRMode()"><img src="img/vrmode.png" class="menu-image"></a><br>
-				<a href="javascript:openHelp()"><img src="img/help.png" class="menu-image"></a><br>
-				<a href="javascript:openSettings()"><img src="img/settings.png" class="menu-image"></a><br>
-				<img src="img/inst.png" class="inst-box" id="inst_box">
-				<!--
-				<a href="javascript:toggleDebugWindow()"><img src="img/debug.png" class="menu-image"></a>
-				-->
-			</div>
-			<div id="debug">
-				<div id="debug_camera"></div>
+				<img id="inst_vr" src="img/inst_vr.svg" class="inst-box inst-box-vr">
 			</div>
 		</div>
 		<div id="main_canvas">
@@ -75,8 +96,13 @@
 		</div>
 		<div id="progressbar" class="progressbar-base"></div>
 		<div id="progressbar-front" class="progressbar-base"></div>
-		<div id="copyright">
-			<img src="img/copyright.png">
+		<div id="footer">
+			<div id="copyright">
+				(c) 2020,2021 Shizuoka University xR Association "Hamaria" (c) OpenStreetMap Contributors
+			</div>
+			<div id="version">
+				Ver.2.0.0
+			</div>
 		</div>
 	</body>
 </html>
