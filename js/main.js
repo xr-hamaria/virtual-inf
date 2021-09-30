@@ -754,9 +754,10 @@ window.changeVRMode = () => {
 	$("#mobile_menu").fadeOut(500);
 	$("#mobile_menu_nt").fadeOut(500);
 	$("#inst_box").fadeOut(500);
-	$("#footer").fadeOut(500);
 	$("#vr_menu").fadeIn(500);
-	$("#vr_mode").show(500);
+	if (w > 598) {
+		$("#vr_mode").show(500);
+	}
 	$("#VRButton").hide(500);
 };
 
@@ -784,7 +785,6 @@ window.openSettings = () => {
 	$("#dialog_title").text("設定");
 	$("#cover").css("display", "block").css("opacity",0.3);
 	showLoadMessage();
-	
 	$("#dialog_main").load("contents/settings.html", function(response, status, xhr) {
 		for(let key of Object.keys(window.vcConfig)) {
 			if(typeof(window.vcConfig[key]) == 'boolean') {
@@ -842,9 +842,6 @@ function showNormalUI() {
 	}
 	if (w > 598) {
 		$("#inst_box").fadeIn(500);
-	}
-	if (w > 798) {
-		$("#footer").fadeIn(500);
 	}
 	$("#vr_menu").fadeOut(500);
 	$("#vr_mode").hide(500);
