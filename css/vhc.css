@@ -202,6 +202,12 @@ body {
 	margin-left: -3px;
 }
 
+.inst-box-vr {
+	position: fixed;
+	left: 10px;
+	top: 10px;
+}
+
 #inst_box {
 	position: fixed;
 	left: 10px;
@@ -298,6 +304,10 @@ body {
 
 	.inst-box {
 		width: 45vw;
+	}
+
+	#inst_box {
+		top: 100px;
 	}
 
 	#header {
