@@ -59,7 +59,7 @@ const toolTips = {
 };
 
 
-var fade = 0;
+var doneFade = false;
 
 var tooltip = {
 	visible: false,
@@ -634,7 +634,6 @@ class CampusSceneMain extends CampusScene {
 			if(!(!dialog.visible && tooltip.targetId != "" && toolTips[tooltip.targetId].impl == true) || !tooltip.visible || this.app.isFirstPersonMode())
 				return;
 			this.app.controls.enabled = false;
-			//$("#cover").css("display", "block").css("opacity",0.3);
 			if(toolTips[tooltip.targetId] && toolTips[tooltip.targetId].impl) {
 				UIKit.darkenScreen();
 				UIKit.showDialogFromPath(tooltip.label, `contents/${toolTips[tooltip.targetId].id}.html`);
@@ -642,8 +641,7 @@ class CampusSceneMain extends CampusScene {
 				UIKit.setDialogContent('');
 			}
 			
-			//domDialog.show(500);
-			fade = 0;
+			doneFade = false;
 			dialog.visible = true;
 		});
 
@@ -651,15 +649,9 @@ class CampusSceneMain extends CampusScene {
 
 
 	update() {
-		
-		
-		
 		if(this.model && this.model.scale.y < 1) {
 			this.model.scale.y = Math.min(1, (this.model.scale.y+.2)*(this.model.scale.y+.2)*(3-2*(this.model.scale.y+.2)));
 		}
-
-		// curTime = performance.now();
-
 		if(settings.cycleSun) {
 			this.calcSunPosition();
 		} else {
@@ -667,12 +659,12 @@ class CampusSceneMain extends CampusScene {
 		}
 
 		// フェード処理
-		if (fade == 0 && domCover.css("opacity") <= 0) {
+		if (!doneFade && domCover.css("opacity") <= 0) {
 			domCover.css("display", "none");
 			if(VRButton.enableVR() && !document.getElementById('VRButton')) {
 				document.body.appendChild(VRButton.createButton(this.app.renderer));
 			}
-			fade = 1;
+			doneFade = true;
 		}
 		
 	}
@@ -685,6 +677,11 @@ class CampusSceneMain extends CampusScene {
 		this.ambientLight.intensity = 0.1 * now;
 		if(this.nightWindows.length > 0)
 			this.nightWindows[0].emissive.setHex(now < 0.25 || now > 0.75 ? 0xf4ef9b : 0x0);
+		
+		if(this.skyDome) {
+			const overlay = 1.0 - (Math.max(0, Math.sin(6.2 * now + 1.6)) * 1.0);
+			this.skyDome.material.color.setRGB(overlay, overlay, overlay);
+		}
 	}
 
 	onMouseMove(ev) {
@@ -878,10 +875,15 @@ class UIController {
 					if(elem.length > 0) {
 						elem.attr("checked", window.vcConfig[key]).prop("checked", window.vcConfig[key]).change();
 					}
+				} else if(typeof(window.vcConfig[key]) == 'number') {
+					const elem = $("#number" + key);
+					if(elem.length > 0) {
+						elem.attr("value", window.vcConfig[key]).change();
+					}
 				}
 			}
 		});
-		fade = 0;
+		doneFade = false;
 		dialog.visible = true;
 	}
 
@@ -917,7 +919,7 @@ class UIController {
 		$("#mobile_menu_nt").fadeOut(500);
 		$("#inst_box").fadeOut(500);
 		$("#vr_menu").fadeIn(500);
-		if (w > 598) {
+		if (this.clientWidth > 598) {
 			$("#vr_mode").show(500);
 		}
 		$("#VRButton").hide(500);
@@ -935,7 +937,7 @@ class UIController {
 		this.app.controls.enabled = false;
 		UIKit.darkenScreen();
 		UIKit.showDialogFromPath("操作説明", "contents/help.html");
-		fade = 0;
+		doneFade = false;
 		dialog.visible = true;
 	}
 
@@ -949,6 +951,11 @@ class UIController {
 					const elem = $("#chkbox" + key);
 					if(elem.length > 0) {
 						window.vcConfig[key] = elem.prop("checked");
+					}
+				} else if(typeof(window.vcConfig[key]) == 'number') {
+					const elem = $("#number" + key);
+					if(elem.length > 0) {
+						window.vcConfig[key] = parseInt(elem.val());
 					}
 				}
 			}
