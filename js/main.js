@@ -861,9 +861,6 @@ class UIController {
 		if (this.clientWidth > 598) {
 			$("#inst_box").fadeIn(500);
 		}
-		if (this.clientWidth > 798) {
-			$("#footer").fadeIn(500);
-		}
 		$("#vr_menu").fadeOut(500);
 		$("#vr_mode").hide(500);
 		$("#VRButton").show(500);
@@ -919,9 +916,10 @@ class UIController {
 		$("#mobile_menu").fadeOut(500);
 		$("#mobile_menu_nt").fadeOut(500);
 		$("#inst_box").fadeOut(500);
-		$("#footer").fadeOut(500);
 		$("#vr_menu").fadeIn(500);
-		$("#vr_mode").show(500);
+		if (w > 598) {
+			$("#vr_mode").show(500);
+		}
 		$("#VRButton").hide(500);
 	}
 
