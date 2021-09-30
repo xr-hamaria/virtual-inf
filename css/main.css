@@ -99,24 +99,39 @@ p a:hover {
 	font-size: 12px;
 }
 
-@media screen and ( max-width: 1120px ){
+@media screen and ( max-width: 1180px ){
+	.wrapper {
+		width: 900px;
+	}
+
+	.wrapper-left, .wrapper-right, .wrapper-start div {
+		width: 425px;
+	}
+}
+
+@media screen and ( max-width: 980px ){
 	body {
 		margin-top: -60px;
 	}
-	.page, .wrapper, .wrapper-left, .wrapper-right, .footer, .wrapper-logo, .wrapper-movie, .wrapper-image, .wrapper-start div {
+
+	.page, .wrapper, .wrapper-left, .wrapper-right, .footer, .wrapper-movie, .wrapper-image, .wrapper-start div {
 		width: 100%;
 		box-sizing: border-box;
 	}
+
 	.wrapper {
 		padding: 30px;
 	}
+
+	.wrapper-logo {
+		width: 80%;
+	}
+
 	.wrapper-start {
 		display: block;
 		margin-top: -20px;
 	}
-}
 
-@media screen and ( max-width: 820px ){
 	.wrapper-large-banner {
 		width: 80%;
 	}
