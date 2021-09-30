@@ -426,7 +426,8 @@ function init() {
 		renderer.outputEncoding = THREE.sRGBEncoding;
 		renderer.gammaFactor = 2.2;
 		camera.position.set(329.9886609379634,240.83169594230232,-35.899973772662483);
-		camera.rotation.set(-1.8099243120012465,0.7840724844004205,1.9031279561056308)
+		//camera.rotation.set(-1.8099243120012465,0.7840724844004205,1.9031279561056308);
+		camera.rotation.set(-1.7797746081524712, 0.5992171831356755, 1.930462008083521);
 		renderer.setAnimationLoop(tick);
 
 		try {
@@ -708,11 +709,11 @@ window.addEventListener('mousemove', function (ev){
 function changeInstImage() {
 	var ua = navigator.userAgent;
 	if (ua.indexOf('iPhone') > 0 || ua.indexOf('Android') > 0 && ua.indexOf('Mobile') > 0) {
-		$("#inst_box").attr("src","img/inst_s.png");
+		$("#inst_box").attr("src","img/inst_s.svg");
 	} else if (ua.indexOf('iPad') > 0 || ua.indexOf('Android') > 0) {
-		$("#inst_box").attr("src","img/inst_s.png");
+		$("#inst_box").attr("src","img/inst_s.svg");
 	} else {
-		$("#inst_box").attr("src","img/inst.png");
+		$("#inst_box").attr("src","img/inst.svg");
 	}
 }
 
@@ -752,6 +753,7 @@ window.changeVRMode = () => {
 	$("#menu").fadeOut(500);
 	$("#mobile_menu").fadeOut(500);
 	$("#mobile_menu_nt").fadeOut(500);
+	$("#inst_box").fadeOut(500);
 	$("#footer").fadeOut(500);
 	$("#vr_menu").fadeIn(500);
 	$("#vr_mode").show(500);
@@ -837,6 +839,9 @@ function showNormalUI() {
 		$("#mobile_menu").fadeIn(500);
 	} else if (w <= 598) {
 		$("#mobile_menu_nt").fadeIn(500);
+	}
+	if (w > 598) {
+		$("#inst_box").fadeIn(500);
 	}
 	if (w > 798) {
 		$("#footer").fadeIn(500);

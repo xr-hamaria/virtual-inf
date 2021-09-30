@@ -203,7 +203,9 @@ body {
 }
 
 #inst_box {
-	padding-top: 20px;
+	position: fixed;
+	left: 10px;
+	top: 150px;
 }
 
 #vr_mode {
@@ -337,6 +339,10 @@ body {
 	
 	#mobile_menu_nt {
 		display: block;
+	}
+
+	#inst_box {
+		display: none;
 	}
 }
 
