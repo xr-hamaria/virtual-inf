@@ -535,9 +535,12 @@ class CampusScene {
 	 * 0時を0，24時を1として、このアプリ内の時刻を返します
 	 * @returns {Number} 時刻(小数) 0.0～1.0
 	 */
-	calcInAppTime() {
+	calcInAppTime(cycleSpeed) {
+		if(!cycleSpeed) {
+			cycleSpeed = settings.cycleSpeed;
+		}
 		const date = new Date();
-		const now = (((date.getHours() * 60*60*1000 + date.getMinutes() * 60*1000+date.getSeconds() * 1000 +date.getMilliseconds()) * settings.cycleSpeed) % 86400000) / 86400000;
+		const now = (((date.getHours() * 60*60*1000 + date.getMinutes() * 60*1000+date.getSeconds() * 1000 +date.getMilliseconds()) * cycleSpeed) % 86400000) / 86400000;
 		return now;
 	}
 
@@ -555,13 +558,14 @@ class CampusSceneMain extends CampusScene {
 
 		this.nightWindows = [];
 		this.parentMap = {};
+		this.needles = [];
 
 		this.toolTipRaycaster = new THREE.Raycaster();
+		this.extendedTextures = {};
 	}
 
 	preInit() {
 		const loader = new GLTFLoader();
-
 		loader.load('model/campus.glb', (gltf) => {
 			this.model = gltf.scene;
 			if(debugMode)
@@ -591,9 +595,13 @@ class CampusSceneMain extends CampusScene {
 						this.nightWindows.push(child.material);
 					}
 				}
+				if(child.name.startsWith("hari")) {
+					this.needles.push(child);
+				}
 			}
 			this.model.scale.y = 0.01;
 			this.scene.add(gltf.scene);
+			this.applyClock();
 			UIKit.setProgress(1);
 			UIKit.lightenScreen();
 			UIKit.hideLoadingCover();
@@ -656,6 +664,7 @@ class CampusSceneMain extends CampusScene {
 			this.calcSunPosition();
 		} else {
 			this.ambientLight.intensity = 0.6;
+			this.applyClock();
 		}
 
 		// フェード処理
@@ -672,6 +681,7 @@ class CampusSceneMain extends CampusScene {
 
 	calcSunPosition() {
 		const now = this.calcInAppTime();
+		this.applyClock(now);
 		const rad = (now + 0.375) * Math.PI * 2;
 		this.sun.position.set(Math.cos(rad) * 200, Math.sin(rad) * -200, this.sun.position.z);
 		this.ambientLight.intensity = 0.1 * now;
@@ -681,6 +691,16 @@ class CampusSceneMain extends CampusScene {
 		if(this.skyDome) {
 			const overlay = 1.0 - (Math.max(0, Math.sin(6.2 * now + 1.6)) * 1.0);
 			this.skyDome.material.color.setRGB(overlay, overlay, overlay);
+		}
+	}
+
+	applyClock(now) {
+		if(!now) {
+			now = this.calcInAppTime(1);
+		}
+		for(let c of this.needles) {
+			c.children[0].rotation.x = -now * Math.PI * 2 * 24;
+			c.children[1].rotation.x = -now * Math.PI * 2 * 2;
 		}
 	}
 
