@@ -257,7 +257,7 @@ class VirtualCampusApp {
 
 		// カメラを作成
 		this.camera = new THREE.PerspectiveCamera(45, this.width / this.height, 0.1, 1000);
-		this.controls = new OrbitControls(this.camera);
+		this.controls = new OrbitControls(this.camera, this.renderer.domElement);
 		this.controls.maxDistance = 600;
 		this.controls.noKeys = true;
 		this.controls.maxPolarAngle = Math.PI * 0.495;
