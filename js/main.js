@@ -1157,7 +1157,7 @@ const uikitInstance = new UIKit();
 
 
 const app = new VirtualCampusApp();
-window.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', () => {
 	app.init();
 });
 app.main();
