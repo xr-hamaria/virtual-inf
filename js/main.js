@@ -1,7 +1,10 @@
+import * as THREE from '../build/three.module.js';
 import { GLTFLoader } from './GLTFLoader.js';
 import { RGBELoader } from './RGBELoader.js';
 import { VRButton } from './WebVR.js';
 import { VirtualPad } from './virtualpad.js';
+import { OrbitControls } from './OrbitControls.js';
+import { PointerLockControls } from './PointerLockControls.js';
 
 const debugMode = false;
 const domtip = $("#tip");
@@ -254,7 +257,7 @@ class VirtualCampusApp {
 
 		// カメラを作成
 		this.camera = new THREE.PerspectiveCamera(45, this.width / this.height, 0.1, 1000);
-		this.controls = new THREE.OrbitControls(this.camera);
+		this.controls = new OrbitControls(this.camera);
 		this.controls.maxDistance = 600;
 		this.controls.noKeys = true;
 		this.controls.maxPolarAngle = Math.PI * 0.495;
@@ -286,7 +289,7 @@ class VirtualCampusApp {
 
 	setupFirstPersonMode() {
 		// 移動関連のコンポーネント初期化
-		this.walkthrough = new THREE.PointerLockControls(this.camera, document.getElementById('canvas') );
+		this.walkthrough = new PointerLockControls(this.camera, document.getElementById('canvas'));
 		this.walkthrough.addEventListener('lock', () => {
 			player.birdPos = new THREE.Vector3(this.camera.position.x, this.camera.position.y, this.camera.position.z);
 			if(this.currentScene) {
