@@ -2,12 +2,18 @@
 <html lang="ja">
 	<head>
 		<title>静岡大学 バーチャル浜松キャンパス</title>
-		<meta charset="utf-8">
-		<meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no">
-		<meta name="robots" content="noindex, nofollow">
+		<meta charset="utf-8" />
+		<meta
+			name="viewport"
+			content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no"
+		/>
+		<meta name="robots" content="noindex, nofollow" />
 		<script src="js/jquery.js"></script>
 		<script src="js/webxr-polyfill.min.js"></script>
-		<script async src="https://cdn.jsdelivr.net/npm/es-module-shims@1.5.8/dist/es-module-shims.js"></script>
+		<script
+			async
+			src="https://cdn.jsdelivr.net/npm/es-module-shims@1.5.8/dist/es-module-shims.js"
+		></script>
 		<script type="importmap">
 			{
 				"imports": {
@@ -18,76 +24,91 @@
 		<script src="js/main.js" type="module"></script>
 		<script src="js/WebVR.js" type="module"></script>
 		<script src="js/virtualpad.js" type="module"></script>
-		<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&display=swap" rel="stylesheet"> 
-		<link rel="stylesheet" href="css/vhc.css">
-		<link rel="stylesheet" href="css/vhc_dialog.css">
-		<link rel="stylesheet" href="css/virtualpad.css">
-		<link rel="shortcut icon" type="image/x-icon" href="img/favicon.ico">
-		
+		<link
+			href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&display=swap"
+			rel="stylesheet"
+		/>
+		<link rel="stylesheet" href="css/vhc.css" />
+		<link rel="stylesheet" href="css/vhc_dialog.css" />
+		<link rel="stylesheet" href="css/virtualpad.css" />
+		<link rel="shortcut icon" type="image/x-icon" href="img/favicon.ico" />
+
 		<!-- xr-hamaria.github.io 以外のドメインで当システムを運用する場合は、以下のコードを削除してください -->
-		<script async src="https://www.googletagmanager.com/gtag/js?id=UA-103554097-3"></script>
+		<script
+			async
+			src="https://www.googletagmanager.com/gtag/js?id=UA-103554097-3"
+		></script>
 		<script>
-		  window.dataLayer = window.dataLayer || [];
-		  function gtag(){dataLayer.push(arguments);}
-		  gtag('js', new Date());
-		  gtag('config', 'UA-103554097-3');
+			window.dataLayer = window.dataLayer || [];
+			function gtag() {
+				dataLayer.push(arguments);
+			}
+			gtag("js", new Date());
+			gtag("config", "UA-103554097-3");
 		</script>
 		<!-- ここまで -->
-		
 	</head>
 	<body>
 		<div id="cover" onclick="closeDialog();">
 			<div id="cover_loading">
-				<img src="img/loading.svg">
+				<img src="img/loading.svg" />
 			</div>
 		</div>
 		<div class="cover-mobile-menu" onclick="closeMenu()"></div>
 		<div id="header">
-			<img src="img/navbar_logo.svg" id="logo">
+			<img src="img/navbar_logo.svg" id="logo" />
 		</div>
 		<div class="menu" id="menu">
 			<ul>
-				<li onclick="changeVRMode()"><img src="img/button/vr_mode.svg"></li>
-				<li onclick="openHelp()"><img src="img/button/help.svg"></li>
-				<li onclick="openSettings()"><img src="img/button/setup.svg"></li>
+				<li onclick="changeVRMode()"><img src="img/button/vr_mode.svg" /></li>
+				<li onclick="openHelp()"><img src="img/button/help.svg" /></li>
+				<li onclick="openSettings()"><img src="img/button/setup.svg" /></li>
 			</ul>
 		</div>
 		<div class="menu" id="mobile_menubar">
 			<ul>
-				<li onclick="changeVRMode()"><img src="img/button/vr_mode.svg"></li>
-				<li onclick="openHelp()"><img src="img/button/help.svg"></li>
-				<li onclick="openSettings()"><img src="img/button/setup.svg"></li>
+				<li onclick="changeVRMode()"><img src="img/button/vr_mode.svg" /></li>
+				<li onclick="openHelp()"><img src="img/button/help.svg" /></li>
+				<li onclick="openSettings()"><img src="img/button/setup.svg" /></li>
 			</ul>
 		</div>
 		<div class="menu" id="mobile_menu">
 			<ul>
-				<li onclick="openMenu()"><img src="img/button/menu.svg"></li>
+				<li onclick="openMenu()"><img src="img/button/menu.svg" /></li>
 			</ul>
 		</div>
 		<div class="menu" id="mobile_menu_nt">
 			<ul>
-				<li onclick="openMenu()"><img src="img/button/menu2.svg"></li>
+				<li onclick="openMenu()"><img src="img/button/menu2.svg" /></li>
 			</ul>
 		</div>
 		<div class="menu" id="vr_menu">
 			<ul>
-				<li onclick="closeVRMode()"><img src="img/button/vr_mode_exit.svg"></li>
+				<li onclick="closeVRMode()">
+					<img src="img/button/vr_mode_exit.svg" />
+				</li>
 			</ul>
 		</div>
-		<img id="inst_box">
+		<img id="inst_box" />
 		<div id="dialog">
-			<div id="dialog_exit"><a href="javascript:closeDialog()"><img src="img/close.png"></a></div>
+			<div id="dialog_exit">
+				<a href="javascript:closeDialog()"><img src="img/close.png" /></a>
+			</div>
 			<div id="dialog_title"></div>
 			<div id="dialog_main"></div>
 		</div>
 		<div class="tip" id="tip">
 			<div id="tip_text" class="text"></div>
-			<img src="img/icon/icon-expl.svg" class="icon-first" id="tip_icon_expl"><img src="img/icon/icon-photo.svg" id="tip_icon_photo">
+			<img
+				src="img/icon/icon-expl.svg"
+				class="icon-first"
+				id="tip_icon_expl"
+			/><img src="img/icon/icon-photo.svg" id="tip_icon_photo" />
 		</div>
 		<div class="tip" id="tip_copy"></div>
 		<div id="vr_mode">
 			<div id="toolbar">
-				<img id="inst_vr" src="img/inst_vr.svg" class="inst-box inst-box-vr">
+				<img id="inst_vr" src="img/inst_vr.svg" class="inst-box inst-box-vr" />
 			</div>
 		</div>
 		<div id="main_canvas">
@@ -101,11 +122,10 @@
 		<div id="progressbar-front" class="progressbar-base"></div>
 		<div id="footer">
 			<div id="copyright">
-				(c) 2020,2021 Shizuoka University xR Association "Hamaria" (c) OpenStreetMap Contributors
+				(c) 2020-2022 Shizuoka University xR Association "Hamaria" (c)
+				OpenStreetMap Contributors
 			</div>
-			<div id="version">
-				Ver.2.1.0
-			</div>
+			<div id="version">Ver.2.2.0</div>
 		</div>
 	</body>
 </html>
