@@ -1,7 +1,10 @@
+import * as THREE from '../build/three.module.js';
 import { GLTFLoader } from './GLTFLoader.js';
 import { RGBELoader } from './RGBELoader.js';
 import { VRButton } from './WebVR.js';
 import { VirtualPad } from './virtualpad.js';
+import { OrbitControls } from './OrbitControls.js';
+import { PointerLockControls } from './PointerLockControls.js';
 
 const debugMode = false;
 const domtip = $("#tip");
@@ -160,7 +163,7 @@ var settings = {
 		settings._halfFramerate = (savedata[1] == 1);
 		settings._enableShadow = (savedata[2] == 1);
 		settings._cycleSpeed = 6000;
-		settings._cycleSun = (savedata[3] == 1); 
+		settings._cycleSun = (savedata[3] == 1);
 	}
 	if (localStorage.hasOwnProperty("settings")) {
 		try {
@@ -254,7 +257,7 @@ class VirtualCampusApp {
 
 		// カメラを作成
 		this.camera = new THREE.PerspectiveCamera(45, this.width / this.height, 0.1, 1000);
-		this.controls = new THREE.OrbitControls(this.camera);
+		this.controls = new OrbitControls(this.camera, this.renderer.domElement);
 		this.controls.maxDistance = 600;
 		this.controls.noKeys = true;
 		this.controls.maxPolarAngle = Math.PI * 0.495;
@@ -286,7 +289,7 @@ class VirtualCampusApp {
 
 	setupFirstPersonMode() {
 		// 移動関連のコンポーネント初期化
-		this.walkthrough = new THREE.PointerLockControls(this.camera, document.getElementById('canvas') );
+		this.walkthrough = new PointerLockControls(this.camera, document.getElementById('canvas'));
 		this.walkthrough.addEventListener('lock', () => {
 			player.birdPos = new THREE.Vector3(this.camera.position.x, this.camera.position.y, this.camera.position.z);
 			if(this.currentScene) {
@@ -340,7 +343,7 @@ class VirtualCampusApp {
 			this.currentScene.update();
 		}
 
-		if(!vcConfig._halfFramerate || vcConfig._halfFramerate && this.frameCounter == 0) {  
+		if(!vcConfig._halfFramerate || vcConfig._halfFramerate && this.frameCounter == 0) {
 			this.renderer.render(this.scene, this.camera);
 		}
 		this.frameCounter = (this.frameCounter + 1) % 2;
@@ -391,7 +394,7 @@ class VirtualCampusApp {
 			this.walkthrough.moveRight(dir.x * player.speed * delta);
 			this.walkthrough.moveForward(dir.z * player.speed * delta);
 		}
-		
+
 	}
 
 	resetRenderer() {
@@ -445,7 +448,7 @@ class VirtualCampusApp {
 			newRenderer.shadowMap.enabled = this.renderer.shadowMap.enabled;
 			if(debugMode)
 				console.log(newRenderer);
-				this.renderer.dispose();
+			this.renderer.dispose();
 			this.renderer = null;
 			this.renderer = newRenderer;
 			this.resetRenderer();
@@ -501,7 +504,7 @@ class CampusScene {
 
 	/**
 	 * マウスが移動したときに呼ばれます
-	 * @param {Object} evt MouseMoveイベントのオブジェクト 
+	 * @param {Object} evt MouseMoveイベントのオブジェクト
 	 */
 	onMouseMove(evt) {}
 
@@ -648,7 +651,7 @@ class CampusSceneMain extends CampusScene {
 			} else {
 				UIKit.setDialogContent('');
 			}
-			
+
 			doneFade = false;
 			dialog.visible = true;
 		});
@@ -675,7 +678,7 @@ class CampusSceneMain extends CampusScene {
 			}
 			doneFade = true;
 		}
-		
+
 	}
 
 
@@ -687,7 +690,7 @@ class CampusSceneMain extends CampusScene {
 		this.ambientLight.intensity = 0.1 * now;
 		if(this.nightWindows.length > 0)
 			this.nightWindows[0].emissive.setHex(now < 0.25 || now > 0.75 ? 0xf4ef9b : 0x0);
-		
+
 		if(this.skyDome) {
 			const overlay = 1.0 - (Math.max(0, Math.sin(6.2 * now + 1.6)) * 1.0);
 			this.skyDome.material.color.setRGB(overlay, overlay, overlay);
@@ -705,11 +708,11 @@ class CampusSceneMain extends CampusScene {
 	}
 
 	onMouseMove(ev) {
-		
+
 		if(!dialog.visible) {
 			if(!(this.scene && this.app.controls) || this.app.isFirstPersonMode())
 				return;
-	
+
 			if(ev.target && ev.target.nodeName == "IMG") {
 				tooltip.visible = false;
 				return;
@@ -724,7 +727,7 @@ class CampusSceneMain extends CampusScene {
 			let mouse = new THREE.Vector2();
 			mouse.x =  ( x / size.x ) * 2 - 1;
 			mouse.y = -( y / size.y ) * 2 + 1;
-			
+
 			// 取得したX、Y座標でrayの位置を更新
 			this.toolTipRaycaster.setFromCamera( mouse, this.app.camera );
 			// オブジェクトの取得
@@ -740,12 +743,12 @@ class CampusSceneMain extends CampusScene {
 					break;
 				}
 			}
-			if (!hit) { 
+			if (!hit) {
 				tooltip.visible = false;
 			}
 
 		}
-	
+
 		// ツールチップ処理
 		if(!this.app.isFirstPersonMode()) {
 			if(tooltip.prevFrameVisible != tooltip.visible) {
@@ -755,7 +758,7 @@ class CampusSceneMain extends CampusScene {
 				if (tooltip.visible && !UIKit.isMenuOpen()) {
 					domtip.show();
 				}
-	
+
 				if (tooltip.targetId && tooltip.targetId.length > 0) {
 					domtipText.html("<span>" + tooltip.label + "</span>");
 					domtipExpl.css("opacity", toolTips[tooltip.targetId].doc ? 1 : 0.3);
@@ -764,13 +767,13 @@ class CampusSceneMain extends CampusScene {
 					domtip.css("width", domtipCopy.css("width")).css("height", domtipCopy.css("height"));
 				}
 			}
-			
+
 			if (dialog.visible && dialog.height != domDialog.height()) {
 				dialog.height = domDialog.height();
 				domDialogMain.height(dialog.height - 105);
 			}
-			
-	
+
+
 		}
 		tooltip.prevFrameVisible = tooltip.visible;
 	}
@@ -883,7 +886,7 @@ class UIController {
 		$("#VRButton").show(500);
 	}
 
-	
+
 	openSettings() {
 		this.closeMobileMenu();
 		this.app.controls.enabled = false;
@@ -1069,7 +1072,7 @@ class UIKit {
 
 	/**
 	 * プログレスバーの値を設定します
-	 * @param {number} p 進捗度 0.0 ~ 1.0 
+	 * @param {number} p 進捗度 0.0 ~ 1.0
 	 */
 	static setProgress(p) {
 		UIKit.getInstance().domProgressBar.css('transform', `scaleX(${p})`);
@@ -1078,7 +1081,7 @@ class UIKit {
 	/**
 	 * Pathの内容を読み込んでダイアログを表示します
 	 * @param {string} title タイトル
-	 * @param {string} path 読み込むファイルパス 
+	 * @param {string} path 読み込むファイルパス
 	 */
 	static showDialogFromPath(title, path, callback) {
 		$("#dialog_title").text(title);
@@ -1121,7 +1124,7 @@ class UIKit {
 			clickPos = {x:evt.screenX, y:evt.screenY};
 			cancel = false;
 		}, false);
-		
+
 		dom.addEventListener('touchstart', evt => {
 			clickPos = {x:evt.screenX, y:evt.screenY};
 			cancel = false;
@@ -1129,7 +1132,7 @@ class UIKit {
 		function upHandler(evt) {
 			if(cancel)
 				return;
-			
+
 			const d = (evt.screenX - clickPos.x) * (evt.screenX - clickPos.x) + (evt.screenY - clickPos.y) * (evt.screenY - clickPos.y);
 			if(d <= 16) {
 				callback();
@@ -1137,7 +1140,7 @@ class UIKit {
 		}
 		dom.addEventListener('touchend', evt => upHandler(evt), false);
 		dom.addEventListener('mouseup', evt => upHandler(evt), false);
-		
+
 		// for iOS
 		function preventScroll(evt) {
 			if(evt.touches.length >= 2) {
@@ -1154,7 +1157,7 @@ const uikitInstance = new UIKit();
 
 
 const app = new VirtualCampusApp();
-window.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', () => {
 	app.init();
 });
 app.main();
